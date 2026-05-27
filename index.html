@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Money Manager</title>
+    <script>
+      // Polyfill global for sockjs-client or other older packages
+      window.global = window;
+
+      // Early runtime/eval error capture to prevent blank page without diagnostics
+      window.addEventListener('error', (event) => {
+        const root = document.getElementById('root');
+        if (root) {
+          root.innerHTML = `
+            <div style="padding: 20px; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px; margin: 20px; font-family: sans-serif;">
+              <h3 style="margin-top: 0;">⚠️ Uncaught Module Load Error:</h3>
+              <pre style="white-space: pre-wrap; word-break: break-all; background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 3px;">${event.error ? event.error.stack : event.message}</pre>
+              <p style="margin-bottom: 0; font-size: 14px;">This diagnostic overlay is displayed because the UI failed to render at module evaluation time.</p>
+            </div>
+          `;
+        }
+      });
+
+      window.addEventListener('unhandledrejection', (event) => {
+        const root = document.getElementById('root');
+        if (root) {
+          root.innerHTML = `
+            <div style="padding: 20px; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px; margin: 20px; font-family: sans-serif;">
+              <h3 style="margin-top: 0;">⚠️ Unhandled Promise Rejection:</h3>
+              <pre style="white-space: pre-wrap; word-break: break-all; background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 3px;">${event.reason ? (event.reason.stack || event.reason.message || String(event.reason)) : 'Unknown promise rejection'}</pre>
+              <p style="margin-bottom: 0; font-size: 14px;">This diagnostic overlay is displayed because the UI failed to render.</p>
+            </div>
+          `;
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
