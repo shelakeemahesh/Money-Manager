@@ -55,7 +55,8 @@ const Signup = () => {
 
       if (response.status === 201) {
         toast.success("Account created! Please verify your identity.");
-        navigate(`/verify-otp?identifier=${encodeURIComponent(email)}&phone=${encodeURIComponent(fullPhoneNumber)}`);
+        const userId = response.data?.id || "";
+        navigate(`/verify-otp?identifier=${encodeURIComponent(email)}&phone=${encodeURIComponent(fullPhoneNumber)}&userId=${userId}`);
       }
     } catch (err) {
       setError(err.response?.data?.message || "Signup failed. Please try again.");

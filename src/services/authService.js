@@ -35,6 +35,14 @@ export const resendOtp = async ({ emailOrPhone, channel }) => {
   });
 };
 
+// SEND OTP
+export const sendOtp = async ({ userId, deliveryType }) => {
+  return axiosConfig.post(API_ENDPOINTS.SEND_OTP, {
+    userId,
+    deliveryType,
+  });
+};
+
 // FORGOT PASSWORD
 export const forgotPassword = async ({ emailOrPhone }) => {
   return axiosConfig.post(API_ENDPOINTS.FORGOT_PASSWORD, {

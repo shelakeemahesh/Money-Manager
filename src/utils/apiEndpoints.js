@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
   RESET_PASSWORD: `${BASE_URL}/reset-password`,
   VERIFY_OTP: `${BASE_URL}/verify-otp`,
   RESEND_OTP: `${BASE_URL}/resend-otp`,
+  SEND_OTP: `${BASE_URL}/send-otp`,
   REFRESH_TOKEN: `${BASE_URL}/refresh-token`,
   UPLOAD_IMAGE: `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
   PROFILE_UPLOAD_SIGNATURE: `${BASE_URL}/profile/upload-signature`,

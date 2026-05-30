@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Wallet, ArrowRight, Sun, Moon, Mail, Smartphone, ArrowLeft } from "lucide-react";
 import AppContext from "../../context/AppContext";
 import { toast } from "sonner";
-import { verifyOtp, resendOtp } from "../../services/authService";
+import { verifyOtp, resendOtp, sendOtp } from "../../services/authService";
 import Input from "../../components/common/Input";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -11,6 +11,7 @@ const VerifyOtp = () => {
   const [searchParams] = useSearchParams();
   const email = searchParams.get("identifier") || "";
   const phone = searchParams.get("phone") || "";
+  const userId = searchParams.get("userId") || "";
 
   // "choose" | "otp"
   const [step, setStep] = useState("choose");
@@ -57,13 +58,20 @@ const VerifyOtp = () => {
     setError("");
     setSending(true);
 
-    const identifier = channel === "email" ? email : phone;
-
     try {
-      const response = await resendOtp({
-        emailOrPhone: identifier,
-        channel,
-      });
+      let response;
+      if (userId) {
+        response = await sendOtp({
+          userId: parseInt(userId, 10),
+          deliveryType: channel === "email" ? "EMAIL" : "SMS",
+        });
+      } else {
+        const identifier = channel === "email" ? email : phone;
+        response = await resendOtp({
+          emailOrPhone: identifier,
+          channel,
+        });
+      }
 
       if (response.status === 200) {
         const dest = channel === "email" ? maskEmail(email) : maskPhone(phone);
@@ -116,13 +124,20 @@ const VerifyOtp = () => {
     setError("");
     setResending(true);
 
-    const identifier = selectedChannel === "email" ? email : phone;
-
     try {
-      const response = await resendOtp({
-        emailOrPhone: identifier,
-        channel: selectedChannel,
+      let response;
+      if (userId) {
+        response = await sendOtp({
+          userId: parseInt(userId, 10),
+          deliveryType: selectedChannel === "email" ? "EMAIL" : "SMS",
+        });
+      } else {
+        const identifier = selectedChannel === "email" ? email : phone;
+        response = await resendOtp({
+          emailOrPhone: identifier,
+          channel: selectedChannel,
       });
+      }
 
       if (response.status === 200) {
         toast.success("OTP resent successfully!");
