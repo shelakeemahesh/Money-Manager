@@ -322,11 +322,12 @@ const Settings = () => {
               <form onSubmit={handleUpdateProfile} className="mt-5 space-y-5">
                 {/* Photo selector */}
                 <div className="flex flex-col sm:flex-row items-center gap-4 pb-4 border-b border-[var(--border)]">
-                  <div className="relative group shrink-0">
-                    <ProfilePhotoSelector image={profilePhoto} setImage={setProfilePhoto} />
-                    <div className="absolute bottom-1 right-1 w-6 h-6 bg-[var(--text-primary)] rounded-md flex items-center justify-center text-[var(--surface)] border border-[var(--surface)] pointer-events-none shadow-xs">
-                      <User size={11} />
-                    </div>
+                  <div className="shrink-0">
+                    <ProfilePhotoSelector 
+                      image={profilePhoto} 
+                      setImage={setProfilePhoto} 
+                      currentImage={user?.profileImageUrl} 
+                    />
                   </div>
                   <div className="text-center sm:text-left">
                     <h4 className="text-xs font-semibold text-[var(--text-primary)]">User Avatar</h4>
