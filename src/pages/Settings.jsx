@@ -18,7 +18,8 @@ import * as XLSX from "xlsx";
 const Settings = () => {
   const { 
     theme, toggleTheme, user, setUser, 
-    incomeList, setIncomeList, expenseList, setExpenseList, setCategoryList 
+    incomeList, setIncomeList, expenseList, setExpenseList, setCategoryList,
+    language, setLanguage, t
   } = useContext(AppContext);
 
   const navigate = useNavigate();
@@ -45,7 +46,6 @@ const Settings = () => {
 
   // State: Preferences
   const [currency, setCurrency] = useState("INR");
-  const [language, setLanguage] = useState("en");
 
   // State: Notifications
   const [notifications, setNotifications] = useState({
@@ -92,12 +92,12 @@ const Settings = () => {
 
   // Tab configurations
   const TABS = [
-    { id: "profile", label: "Profile Settings", icon: User },
-    { id: "security", label: "Security & Credentials", icon: Lock },
-    { id: "preferences", label: "System Preferences", icon: SettingsIcon },
-    { id: "notifications", label: "Notification Channels", icon: Bell },
-    { id: "sessions", label: "Active Sessions", icon: Monitor },
-    { id: "data", label: "Data Management", icon: Database },
+    { id: "profile", label: t("profileSettings"), icon: User },
+    { id: "security", label: t("securityCredentials"), icon: Lock },
+    { id: "preferences", label: t("systemPreferences"), icon: SettingsIcon },
+    { id: "notifications", label: t("notificationChannels"), icon: Bell },
+    { id: "sessions", label: t("activeSessions"), icon: Monitor },
+    { id: "data", label: t("dataManagement"), icon: Database },
   ];
 
   // Actions: Profile Update
@@ -262,10 +262,10 @@ const Settings = () => {
           </div>
           <div>
             <h1 className="text-base md:text-lg font-bold tracking-tight text-[var(--text-primary)]">
-              Control Dashboard Settings
+              {t("controlSettings")}
             </h1>
             <p className="text-[10px] text-[var(--text-muted)] mt-0.5">
-              Manage details, preferences, security, notifications, and data pipelines
+              {t("settingsDesc")}
             </p>
           </div>
         </div>
@@ -507,10 +507,10 @@ const Settings = () => {
             <div className="card p-5 md:p-6 animate-tab-fade">
               <div>
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">
-                  Display Preferences
+                  {t("displayPreferences")}
                 </h3>
                 <p className="text-xs text-[var(--text-muted)] mt-1 font-normal">
-                  Configure default visual paradigms, currency metrics, and language localizations.
+                  {t("displayPrefDesc")}
                 </p>
               </div>
 
@@ -518,8 +518,8 @@ const Settings = () => {
                 {/* Interface theme */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
                   <div className="space-y-0.5">
-                    <p className="text-xs font-semibold text-[var(--text-primary)]">Visual Interface Theme</p>
-                    <p className="text-[10px] text-[var(--text-muted)] font-medium">Toggle display layout light or dark palettes</p>
+                    <p className="text-xs font-semibold text-[var(--text-primary)]">{t("themeTitle")}</p>
+                    <p className="text-[10px] text-[var(--text-muted)] font-medium">{t("themeDesc")}</p>
                   </div>
                   <button
                     onClick={toggleTheme}
@@ -528,12 +528,12 @@ const Settings = () => {
                     {theme === "dark" ? (
                       <>
                         <Sun size={13} className="text-amber-500 animate-spin" style={{ animationDuration: "12s" }} />
-                        <span>Switch to Light</span>
+                        <span>{t("switchToLight")}</span>
                       </>
                     ) : (
                       <>
                         <Moon size={13} />
-                        <span>Switch to Dark</span>
+                        <span>{t("switchToDark")}</span>
                       </>
                     )}
                   </button>
@@ -542,8 +542,8 @@ const Settings = () => {
                 {/* Currency Selection */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
                   <div className="space-y-0.5">
-                    <p className="text-xs font-semibold text-[var(--text-primary)]">Global Currency Paradigm</p>
-                    <p className="text-[10px] text-[var(--text-muted)] font-medium">Set default currency indicators for dashboard display metrics</p>
+                    <p className="text-xs font-semibold text-[var(--text-primary)]">{t("currencyTitle")}</p>
+                    <p className="text-[10px] text-[var(--text-muted)] font-medium">{t("currencyDesc")}</p>
                   </div>
                   <div className="relative shrink-0 w-full sm:w-44">
                     <select
@@ -571,8 +571,8 @@ const Settings = () => {
                 {/* Language Selector */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-0.5">
-                    <p className="text-xs font-semibold text-[var(--text-primary)]">Language Localization</p>
-                    <p className="text-[10px] text-[var(--text-muted)] font-medium">Choose preferred language settings for textual labels</p>
+                    <p className="text-xs font-semibold text-[var(--text-primary)]">{t("languageTitle")}</p>
+                    <p className="text-[10px] text-[var(--text-muted)] font-medium">{t("languageDesc")}</p>
                   </div>
                   <div className="relative shrink-0 w-full sm:w-44">
                     <Globe size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />

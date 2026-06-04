@@ -3,49 +3,61 @@ import { Search, SlidersHorizontal, TrendingUp, TrendingDown, Calendar, ArrowUpD
 import AppContext from "../context/AppContext";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
-import Input from "../components/common/Input";
 import SearchInput from "../components/common/SearchInput";
 
 const formatCurrency = (amount) =>
     `₹${Number(amount || 0).toLocaleString("en-IN")}`;
 
 const Filter = () => {
-    const { incomeList, expenseList } = useContext(AppContext);
+    const { incomeList, expenseList, t } = useContext(AppContext);
 
     const [filters, setFilters] = useState({
-        type: "Income",
+        type: "All",
         startDate: "",
         endDate: "",
         sortField: "Date",
-        sortOrder: "Ascending",
+        sortOrder: "Descending",
         search: "",
     });
-    const [applied, setApplied] = useState(false);
-    const [results, setResults] = useState([]);
 
-    const handleApply = () => {
-        let list =
-            filters.type === "Income"
-                ? incomeList.map((i) => ({ ...i, type: "Income", label: i.source }))
-                : expenseList.map((e) => ({ ...e, type: "Expense", label: e.category }));
+    const update = (key, value) => setFilters((f) => ({ ...f, [key]: value }));
 
-        if (filters.startDate) list = list.filter((i) => new Date(i.date) >= new Date(filters.startDate));
-        if (filters.endDate) list = list.filter((i) => new Date(i.date) <= new Date(filters.endDate));
+    // Reactive filtering
+    const results = (() => {
+        let list = [];
+        if (filters.type === "All") {
+            list = [
+                ...incomeList.map((i) => ({ ...i, type: "Income", label: i.source || "Income" })),
+                ...expenseList.map((e) => ({ ...e, type: "Expense", label: e.category || "Expense" }))
+            ];
+        } else if (filters.type === "Income") {
+            list = incomeList.map((i) => ({ ...i, type: "Income", label: i.source || "Income" }));
+        } else if (filters.type === "Expense") {
+            list = expenseList.map((e) => ({ ...e, type: "Expense", label: e.category || "Expense" }));
+        }
+
+        if (filters.startDate) {
+            list = list.filter((i) => new Date(i.date) >= new Date(filters.startDate + "T00:00:00"));
+        }
+        if (filters.endDate) {
+            list = list.filter((i) => new Date(i.date) <= new Date(filters.endDate + "T23:59:59"));
+        }
         if (filters.search.trim()) {
             const q = filters.search.toLowerCase();
-            list = list.filter((i) => (i.label || "").toLowerCase().includes(q));
+            list = list.filter((i) => 
+                (i.label || "").toLowerCase().includes(q) || 
+                (i.note || "").toLowerCase().includes(q)
+            );
         }
+
         list.sort((a, b) => {
             let valA = filters.sortField === "Date" ? new Date(a.date || 0) : (a.amount || 0);
             let valB = filters.sortField === "Date" ? new Date(b.date || 0) : (b.amount || 0);
             return filters.sortOrder === "Ascending" ? valA - valB : valB - valA;
         });
 
-        setResults(list);
-        setApplied(true);
-    };
-
-    const update = (key, value) => setFilters((f) => ({ ...f, [key]: value }));
+        return list;
+    })();
 
     const totalFiltered = results.reduce((s, i) => s + (i.amount || 0), 0);
 
@@ -78,14 +90,14 @@ const Filter = () => {
                         <SlidersHorizontal size={15} />
                     </div>
                     <div>
-                        <h1 className="text-base md:text-lg font-bold tracking-tight text-[var(--text-primary)]">Filter Node Registry</h1>
-                        <p className="text-[10px] text-[var(--text-muted)] mt-0.5">Query and locate specific transaction logs</p>
+                        <h1 className="text-base md:text-lg font-bold tracking-tight text-[var(--text-primary)]">{t("filterRegistry")}</h1>
+                        <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{t("queryDetails")}</p>
                     </div>
                 </div>
-                {applied && results.length > 0 && (
-                    <button onClick={downloadExcel} className="btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold self-start sm:self-center">
+                {results.length > 0 && (
+                    <button onClick={downloadExcel} className="btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold self-start sm:self-center cursor-pointer">
                         <Download size={13} />
-                        <span>Export Results</span>
+                        <span>{t("exportResults")}</span>
                     </button>
                 )}
             </div>
@@ -94,12 +106,12 @@ const Filter = () => {
             <div className="card p-4">
                 <div className="flex items-center gap-2 mb-4">
                     <SlidersHorizontal size={14} className="text-[var(--text-secondary)]" />
-                    <h2 className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-primary)]">Query Parameters</h2>
+                    <h2 className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-primary)]">{t("queryParameters")}</h2>
                 </div>
 
                 {/* Type Toggle */}
                 <div className="flex gap-2 mb-4">
-                    {["Income", "Expense"].map(type => (
+                    {["All", "Income", "Expense"].map(type => (
                         <button
                           key={type}
                           onClick={() => update("type", type)}
@@ -107,12 +119,14 @@ const Filter = () => {
                               filters.type === type
                                   ? type === "Income"
                                       ? "bg-[var(--income-bg)] text-[var(--income)] border-[var(--income)]/10"
-                                      : "bg-[var(--expense-bg)] text-[var(--expense)] border-[var(--expense)]/10"
+                                      : type === "Expense"
+                                          ? "bg-[var(--expense-bg)] text-[var(--expense)] border-[var(--expense)]/10"
+                                          : "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 border-indigo-500/10"
                                   : "bg-[var(--surface-2)] text-[var(--text-secondary)] border-[var(--border)] hover:border-[var(--border-2)]"
                           }`}
                         >
-                          {type === "Income" ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
-                          <span>{type} nodes</span>
+                          {type === "Income" ? <TrendingUp size={13} /> : type === "Expense" ? <TrendingDown size={13} /> : <SlidersHorizontal size={13} />}
+                          <span>{t(type.toLowerCase())} {t("typeNodes")}</span>
                         </button>
                     ))}
                 </div>
@@ -121,7 +135,7 @@ const Filter = () => {
                     {/* Start Date */}
                     <div>
                         <label className="block text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-widest mb-1">
-                            <Calendar size={11} className="inline mr-1 -mt-0.5" />Start Date
+                            <Calendar size={11} className="inline mr-1 -mt-0.5" />{t("startDate")}
                         </label>
                         <input type="date" value={filters.startDate} onChange={(e) => update("startDate", e.target.value)}
                             className="input-styled" />
@@ -130,7 +144,7 @@ const Filter = () => {
                     {/* End Date */}
                     <div>
                         <label className="block text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-widest mb-1">
-                            <Calendar size={11} className="inline mr-1 -mt-0.5" />End Date
+                            <Calendar size={11} className="inline mr-1 -mt-0.5" />{t("endDate")}
                         </label>
                         <input type="date" value={filters.endDate} onChange={(e) => update("endDate", e.target.value)}
                             className="input-styled" />
@@ -139,46 +153,38 @@ const Filter = () => {
                     {/* Sort Field */}
                     <div>
                         <label className="block text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-widest mb-1">
-                            <ArrowUpDown size={11} className="inline mr-1 -mt-0.5" />Sort Attribute
+                            <ArrowUpDown size={11} className="inline mr-1 -mt-0.5" />{t("sortAttribute")}
                         </label>
                         <select value={filters.sortField} onChange={(e) => update("sortField", e.target.value)}
-                            className="input-styled appearance-none"
+                            className="input-styled appearance-none cursor-pointer"
                             style={{ backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`, backgroundPosition: 'right 0.75rem center', backgroundSize: '1.25rem', backgroundRepeat: 'no-repeat' }}
                         >
-                            <option>Date</option>
-                            <option>Amount</option>
+                            <option value="Date">Date</option>
+                            <option value="Amount">Amount</option>
                         </select>
                     </div>
 
                     {/* Sort Order */}
                     <div>
-                        <label className="block text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-widest mb-1">Ordering Direction</label>
+                        <label className="block text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-widest mb-1">{t("orderingDirection")}</label>
                         <select value={filters.sortOrder} onChange={(e) => update("sortOrder", e.target.value)}
-                            className="input-styled appearance-none"
+                            className="input-styled appearance-none cursor-pointer"
                             style={{ backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`, backgroundPosition: 'right 0.75rem center', backgroundSize: '1.25rem', backgroundRepeat: 'no-repeat' }}
                         >
-                            <option>Ascending</option>
-                            <option>Descending</option>
+                            <option value="Ascending">Ascending</option>
+                            <option value="Descending">Descending</option>
                         </select>
                     </div>
 
                     {/* Search */}
                     <div className="sm:col-span-2">
-                        <div className="flex items-end gap-2">
-                            <SearchInput
-                                label="Search text"
-                                placeholder="Query name, source, or description..."
-                                value={filters.search}
-                                onChange={(e) => update("search", e.target.value)}
-                                onKeyDown={e => e.key === "Enter" && handleApply()}
-                                wrapperClass="flex-1"
-                            />
-                            <button onClick={handleApply}
-                                className="btn-brand px-4 py-2.5 text-xs font-semibold shrink-0 flex items-center gap-1.5 h-[35px] cursor-pointer">
-                                <Search size={13} />
-                                <span>Query</span>
-                            </button>
-                        </div>
+                        <SearchInput
+                            label={t("searchText")}
+                            placeholder={t("searchPlaceholder")}
+                            value={filters.search}
+                            onChange={(e) => update("search", e.target.value)}
+                            wrapperClass="w-full"
+                        />
                     </div>
                 </div>
             </div>
@@ -187,37 +193,30 @@ const Filter = () => {
             <div className="card overflow-hidden">
                 <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
                     <div>
-                        <h2 className="font-semibold text-[10px] uppercase tracking-widest text-[var(--text-secondary)]">Query Results</h2>
-                        {applied && (
-                            <p className="text-[9px] text-[var(--text-muted)] mt-0.5">
-                                Found {results.length} nodes · Cumulative Volume: <span className={`font-bold ${filters.type === "Income" ? "text-emerald-500" : "text-rose-500"}`}>{formatCurrency(totalFiltered)}</span>
-                            </p>
-                        )}
+                        <h2 className="font-semibold text-[10px] uppercase tracking-widest text-[var(--text-secondary)]">{t("queryResults")}</h2>
+                        <p className="text-[9px] text-[var(--text-muted)] mt-0.5">
+                            {t("foundNodes", { count: results.length })} · {t("cumulativeVolume")}: <span className="font-bold text-indigo-600 dark:text-indigo-400">{formatCurrency(totalFiltered)}</span>
+                        </p>
                     </div>
                 </div>
 
-                {!applied ? (
-                    <div className="flex flex-col items-center py-16 text-center">
+                {results.length === 0 ? (
+                    <div className="flex flex-col items-center py-16 text-center animate-fade-in">
                         <div className="w-10 h-10 rounded-md flex items-center justify-center mb-3 bg-[var(--surface-3)] border border-[var(--border)]">
                             <SlidersHorizontal size={16} className="text-[var(--text-secondary)]" />
                         </div>
-                        <p className="text-xs font-semibold text-[var(--text-secondary)]">Awaiting filter compilation</p>
-                        <p className="text-[9px] text-[var(--text-muted)] mt-0.5">Adjust query parameters and execute the query</p>
-                    </div>
-                ) : results.length === 0 ? (
-                    <div className="flex flex-col items-center py-16 text-center">
-                        <p className="text-xs font-semibold text-[var(--text-secondary)]">Zero records retrieved</p>
-                        <p className="text-[9px] text-[var(--text-muted)] mt-0.5">Modify date bounds or text search and query again</p>
+                        <p className="text-xs font-semibold text-[var(--text-secondary)]">{t("zeroRecords")}</p>
+                        <p className="text-[9px] text-[var(--text-muted)] mt-0.5">{t("modifyFilterPrompt")}</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="premium-table">
                             <thead>
                                 <tr>
-                                    <th>Source / Category</th>
-                                    <th className="hidden sm:table-cell">Type Node</th>
-                                    <th>Logged Date</th>
-                                    <th className="text-right">Volume</th>
+                                    <th>{t("sourceCategory")}</th>
+                                    <th className="hidden sm:table-cell">{t("typeNode")}</th>
+                                    <th>{t("loggedDate")}</th>
+                                    <th className="text-right">{t("volume")}</th>
                                 </tr>
                             </thead>
                             <tbody>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { Check, Star, Zap, Award, HelpCircle, ChevronRight, X, User, Mail, Phone, Loader2, Copy, QrCode, ShieldCheck, ArrowLeft, Clock } from "lucide-react";
 import { toast } from "sonner";
 import AppContext from "../context/AppContext";
@@ -6,7 +6,7 @@ import axiosConfig from "../utils/axiosConfig";
 import { API_ENDPOINTS } from "../utils/apiEndpoints";
 
 const ProPlan = () => {
-  const { user, setUser } = useContext(AppContext);
+  const { user, setUser, t } = useContext(AppContext);
   const [billingCycle, setBillingCycle] = useState("monthly"); // "monthly" | "yearly"
   
   // Status states
@@ -15,6 +15,8 @@ const ProPlan = () => {
   const [submittingPayment, setSubmittingPayment] = useState(false);
   const [transactionId, setTransactionId] = useState("");
   const [showPaymentView, setShowPaymentView] = useState(false);
+  
+  const checkoutRef = useRef(null);
 
   // Enterprise Contact Support Form states
   const [showSupportModal, setShowSupportModal] = useState(false);
@@ -51,6 +53,12 @@ const ProPlan = () => {
   useEffect(() => {
     fetchSubscriptionStatus();
   }, []);
+
+  useEffect(() => {
+    if (showPaymentView && checkoutRef.current) {
+      checkoutRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [showPaymentView]);
 
   const handleCopyUpi = () => {
     navigator.clipboard.writeText("moneymanager@upi");
@@ -139,112 +147,6 @@ const ProPlan = () => {
     );
   }
 
-  if (showPaymentView) {
-    return (
-      <div className="space-y-6 pb-10 animate-fade-in">
-        {/* Header */}
-        <div className="flex items-center gap-3 pb-4 border-b border-[var(--border)]">
-          <button 
-            onClick={() => setShowPaymentView(false)}
-            className="p-1.5 hover:bg-[var(--surface-3)] border border-[var(--border)] rounded-lg transition-colors cursor-pointer text-[var(--text-secondary)]"
-          >
-            <ArrowLeft size={16} />
-          </button>
-          <div>
-            <h1 className="text-base md:text-lg font-bold tracking-tight text-[var(--text-primary)]">Pro Plan Checkout</h1>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5">Complete manual transfer to activate</p>
-          </div>
-        </div>
-
-        <div className="max-w-md mx-auto card p-6 bg-[var(--surface)] border-indigo-500/20 shadow-lg space-y-6">
-          <div className="border-b border-[var(--border)] pb-3 text-center">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--text-primary)] flex items-center justify-center gap-1.5">
-              <QrCode size={16} className="text-indigo-600" />
-              <span>Manual UPI Checkout</span>
-            </h3>
-            <p className="text-[10px] text-[var(--text-muted)] mt-0.5">Pay via UPI to upgrade to Money Manager Pro</p>
-          </div>
-
-          {/* Alert / Notice */}
-          <div className="p-3 bg-indigo-50/50 dark:bg-indigo-950/10 border border-indigo-500/10 rounded-lg flex items-start gap-2.5">
-            <Clock size={14} className="text-indigo-600 dark:text-indigo-400 mt-0.5 shrink-0 animate-pulse" />
-            <div className="text-left space-y-0.5">
-              <h4 className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Fast Activation</h4>
-              <p className="text-xs font-medium text-[var(--text-secondary)] leading-relaxed">
-                Once your payment is submitted, your account will be upgraded to the Pro Plan within 30 minutes.
-              </p>
-            </div>
-          </div>
-
-          {/* Steps */}
-          <div className="space-y-5">
-            {/* Step 1: Copy UPI */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs md:text-sm font-bold text-[var(--text-secondary)]">
-                <span>1. COPY UPI ID & TRANSFER</span>
-                <span className="text-sm md:text-base font-black text-indigo-600 dark:text-indigo-400">₹{price}</span>
-              </div>
-              <div className="flex items-center gap-2 p-3 bg-[var(--surface-3)] border border-[var(--border)] rounded-lg">
-                <span className="text-xs font-mono font-bold text-[var(--text-primary)] flex-1">{upiId}</span>
-                <button
-                  onClick={handleCopyUpi}
-                  className="p-1.5 text-[var(--text-muted)] hover:text-indigo-600 hover:bg-indigo-500/10 rounded-md transition-colors cursor-pointer"
-                  title="Copy UPI ID"
-                >
-                  <Copy size={14} />
-                </button>
-              </div>
-            </div>
-
-            {/* QR Code */}
-            <div className="flex flex-col items-center justify-center p-4 border border-[var(--border)] rounded-xl bg-white shadow-inner">
-              <img src={qrCodeUrl} alt="UPI QR Code" className="w-40 h-40 border border-gray-100 p-1.5 rounded-lg" />
-              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-2">Scan with GPay, PhonePe, PayTM, or any UPI App</p>
-            </div>
-
-            {/* Step 2: Submit UTR */}
-            <form onSubmit={handleSubmitPayment} className="space-y-3 pt-2">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                  2. ENTER TRANSACTION ID / UTR NUMBER
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={transactionId}
-                  onChange={(e) => setTransactionId(e.target.value)}
-                  placeholder="e.g. 618495029384"
-                  className="input-styled uppercase font-mono tracking-wider !text-xs !py-3"
-                />
-                <span className="text-[10px] text-[var(--text-muted)] leading-tight block">
-                  Enter the 12-digit UTR/Txn code generated by your UPI payment app after completion.
-                </span>
-              </div>
-
-              <button
-                type="submit"
-                disabled={submittingPayment}
-                className="w-full btn-brand py-3 text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/10"
-              >
-                {submittingPayment ? (
-                  <>
-                    <Loader2 size={13} className="animate-spin" />
-                    <span>Submitting Payment...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Submit Upgrade Payment</span>
-                    <ChevronRight size={13} />
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 pb-10 animate-fade-in">
       
@@ -256,15 +158,15 @@ const ProPlan = () => {
           </div>
           <div>
             <h1 className="text-base md:text-lg font-bold tracking-tight text-[var(--text-primary)] flex items-center gap-2">
-              <span>Money Manager Pro</span>
+              <span>{t("proPlanTitle")}</span>
               {isPro && (
                 <span className="text-[10px] font-black tracking-wider uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-sm">
-                  Professional Member
+                  {t("premiumProActive")}
                 </span>
               )}
             </h1>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">
-              Unlock the full suite of financial intelligence nodes
+              {t("proPlanDesc")}
             </p>
           </div>
         </div>
@@ -280,7 +182,7 @@ const ProPlan = () => {
                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
-              Monthly
+              {t("monthly")}
             </button>
             <button
               onClick={() => setBillingCycle("yearly")}
@@ -290,7 +192,7 @@ const ProPlan = () => {
                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
-              <span>Yearly</span>
+              <span>{t("yearly")}</span>
               <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase leading-none ${
                 billingCycle === "yearly" ? "bg-white/20 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
               }`}>
@@ -327,8 +229,8 @@ const ProPlan = () => {
       {/* Main Grid: Plans vs Manual UPI checkout */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         
-        {/* Left Side: Plans details (3 Columns, spans 5 if Pro) */}
-        <div className={`${isPro ? "lg:col-span-5" : "lg:col-span-3"} space-y-6`}>
+        {/* Left Side: Plans details (spans 5 if checkout is hidden, 3 if checkout is shown) */}
+        <div className={`${isPro || !showPaymentView ? "lg:col-span-5 max-w-4xl mx-auto w-full" : "lg:col-span-3"} space-y-6`}>
           
           {/* Plan Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -336,7 +238,7 @@ const ProPlan = () => {
             <div className="card p-5 flex flex-col justify-between border-[var(--border)] bg-[var(--surface)]">
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-[var(--text-muted)]">Free Starter</h3>
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-[var(--text-muted)]">{t("freeStarter")}</h3>
                   <p className="text-2xl font-black text-[var(--text-primary)] mt-1">₹0</p>
                   <p className="text-xs text-[var(--text-muted)] mt-0.5">Free forever, basic nodes</p>
                 </div>
@@ -384,7 +286,7 @@ const ProPlan = () => {
 
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Professional Plan</h3>
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-indigo-600 dark:text-indigo-400">{t("proPlanCardTitle")}</h3>
                   <p className="text-2xl font-black text-[var(--text-primary)] mt-1 flex items-baseline gap-1">
                     <span>₹{billingCycle === "monthly" ? "99" : "799"}</span>
                     <span className="text-xs font-normal text-[var(--text-muted)]">/{billingCycle === "monthly" ? "mo" : "yr"}</span>
@@ -428,7 +330,7 @@ const ProPlan = () => {
                     : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/10"
                 }`}
               >
-                {isPro ? "Subscription Active" : `Upgrade to Pro (₹${billingCycle === "monthly" ? "99" : "799"})`}
+                {isPro ? "Subscription Active" : `${t("upgradeToPro")} (₹${billingCycle === "monthly" ? "99" : "799"})`}
               </button>
             </div>
           </div>
@@ -482,17 +384,26 @@ const ProPlan = () => {
           )}
         </div>
 
-        {/* Right Side: UPI Payment Form (2 Columns, rendered only if not Pro) */}
-        {!isPro && (
-          <div className="lg:col-span-2">
+        {/* Right Side: UPI Payment Form (2 Columns, rendered only if not Pro and showPaymentView is true) */}
+        {!isPro && showPaymentView && (
+          <div ref={checkoutRef} className="lg:col-span-2 scroll-mt-20">
             {subStatus?.status !== "PENDING" ? (
               <div className="card p-5 bg-[var(--surface)] border-indigo-500/20 shadow-lg space-y-5">
-                <div className="border-b border-[var(--border)] pb-3">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--text-primary)] flex items-center gap-1.5">
-                    <QrCode size={14} className="text-indigo-600" />
-                    <span>Manual UPI Checkout</span>
-                  </h3>
-                  <p className="text-[10px] text-[var(--text-muted)] mt-0.5">Complete manual transfer to activate</p>
+                <div className="border-b border-[var(--border)] pb-3 flex justify-between items-center">
+                  <div>
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--text-primary)] flex items-center gap-1.5">
+                      <QrCode size={14} className="text-indigo-600" />
+                      <span>{t("manualUpiCheckout")}</span>
+                    </h3>
+                    <p className="text-[10px] text-[var(--text-muted)] mt-0.5">Complete manual transfer to activate</p>
+                  </div>
+                  <button 
+                    onClick={() => setShowPaymentView(false)}
+                    className="p-1 hover:bg-[var(--surface-3)] border border-[var(--border)] rounded-lg transition-colors cursor-pointer text-[var(--text-secondary)]"
+                    title="Close Checkout"
+                  >
+                    <X size={14} />
+                  </button>
                 </div>
 
                 {/* Steps */}
@@ -500,7 +411,7 @@ const ProPlan = () => {
                   {/* Step 1 */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-xs md:text-sm font-bold text-[var(--text-secondary)]">
-                      <span>1. TRANSFER UPI AMOUNT</span>
+                      <span>{t("transferUpiAmount")}</span>
                       <span className="text-sm md:text-base font-black text-indigo-600 dark:text-indigo-400">₹{price}</span>
                     </div>
                     <div className="flex items-center gap-2 p-2.5 bg-[var(--surface-3)] border border-[var(--border)] rounded-lg">
@@ -525,7 +436,7 @@ const ProPlan = () => {
                   <form onSubmit={handleSubmitPayment} className="space-y-3 pt-2">
                     <div className="space-y-1">
                       <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                        2. ENTER TRANSACTION ID / UTR NUMBER
+                        {t("enterTxnId")}
                       </label>
                       <input
                         type="text"
@@ -552,7 +463,7 @@ const ProPlan = () => {
                         </>
                       ) : (
                         <>
-                          <span>Submit Upgrade Payment</span>
+                          <span>{t("submitUpgrade")}</span>
                           <ChevronRight size={13} />
                         </>
                       )}

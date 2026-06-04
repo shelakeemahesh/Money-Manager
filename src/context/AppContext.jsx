@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import { API_ENDPOINTS } from "../utils/apiEndpoints";
 import axiosConfig from "../utils/axiosConfig";
+import { translations } from "../utils/translations";
 
 const AppContext = createContext();
 
@@ -20,6 +21,21 @@ export const AppContextProvider = ({ children }) => {
   const [categoryList, setCategoryList] = useState([]);
   const [anomalyAlerts, setAnomalyAlerts] = useState([]);
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
+  const [language, setLanguageState] = useState(() => localStorage.getItem("language") || "en");
+
+  const setLanguage = (lang) => {
+    localStorage.setItem("language", lang);
+    setLanguageState(lang);
+  };
+
+  const t = (key, replacements = {}) => {
+    const langDict = translations[language] || translations["en"];
+    let text = langDict[key] || translations["en"][key] || key;
+    Object.entries(replacements).forEach(([k, v]) => {
+      text = text.replace(`{${k}}`, v);
+    });
+    return text;
+  };
 
   useEffect(() => {
     if (theme === "dark") {
@@ -78,6 +94,7 @@ export const AppContextProvider = ({ children }) => {
     totalIncome, totalExpense, totalBalance,
     anomalyAlerts, addAnomaly, dismissAnomaly,
     theme, toggleTheme, setTheme,
+    language, setLanguage, t
   };
 
   return (

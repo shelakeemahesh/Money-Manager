@@ -18,16 +18,13 @@ import {
   Percent,
   Calendar,
   ChevronDown,
-  MoreVertical,
   Briefcase,
   Utensils,
   Car,
   Zap,
   Laptop,
   Sparkles,
-  ArrowRight,
   Download,
-  Plus,
   Trophy,
   Award,
   Loader2
@@ -43,7 +40,7 @@ const formatCurrency = (amount) =>
   `₹${Number(amount || 0).toLocaleString("en-IN")}`;
 
 const Home = () => {
-  const { user, setUser, totalIncome, totalExpense, totalBalance, incomeList, expenseList } = useContext(AppContext);
+  const { user, setUser, incomeList, expenseList, t } = useContext(AppContext);
   const navigate = useNavigate();
 
   const [dateFilter, setDateFilter] = useState("This Week");
@@ -53,14 +50,12 @@ const Home = () => {
   useEffect(() => {
     const syncStatus = async () => {
       try {
-        // Sync profile to get latest role
         const profileRes = await axiosConfig.get(API_ENDPOINTS.USER_PROFILE);
         if (profileRes.data) {
           setUser(profileRes.data);
           localStorage.setItem("user", JSON.stringify(profileRes.data));
         }
 
-        // Get subscription status
         const subRes = await axiosConfig.get(API_ENDPOINTS.MY_SUBSCRIPTION);
         if (subRes.data) {
           setSubStatus(subRes.data);
@@ -77,31 +72,90 @@ const Home = () => {
     }
   }, []);
 
-  // Determine fallback data or dynamic data
-  const hasData = incomeList.length > 0 || expenseList.length > 0;
+  // ─── DYNAMIC DATE RANGE CALCULATIONS ──────────────────────────────────────
+  const getFilterRange = (filterType) => {
+    const now = new Date();
+    if (filterType === "This Week") {
+      const day = now.getDay();
+      const diff = now.getDate() - (day === 0 ? 6 : day - 1);
+      const start = new Date(now);
+      start.setDate(diff);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      end.setHours(23, 59, 59, 999);
+      return { start, end };
+    } else if (filterType === "This Month") {
+      const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+      const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+      return { start, end };
+    }
+    return { start: new Date(0), end: new Date(8640000000000000) };
+  };
+
+  const formatDateRange = (start, end) => {
+    const optionsShort = { month: "short", day: "numeric" };
+    const optionsLong = { month: "short", day: "numeric", year: "numeric" };
+    if (start.getFullYear() === end.getFullYear()) {
+      return `${start.toLocaleDateString("en-US", optionsShort)} - ${end.toLocaleDateString("en-US", optionsLong)}`;
+    }
+    return `${start.toLocaleDateString("en-US", optionsLong)} - ${end.toLocaleDateString("en-US", optionsLong)}`;
+  };
+
+  const { start: filterStart, end: filterEnd } = getFilterRange(dateFilter);
+
+  // Filter transaction lists
+  const filteredIncomeList = incomeList.filter(item => {
+    if (!item.date) return false;
+    const d = new Date(item.date);
+    return d >= filterStart && d <= filterEnd;
+  });
+
+  const filteredExpenseList = expenseList.filter(item => {
+    if (!item.date) return false;
+    const d = new Date(item.date);
+    return d >= filterStart && d <= filterEnd;
+  });
+
+  const hasData = filteredIncomeList.length > 0 || filteredExpenseList.length > 0;
 
   // 1. Core Metrics
-  const displayBalance = hasData ? totalBalance : 0;
-  const displayIncome = hasData ? totalIncome : 0;
-  const displayExpense = hasData ? totalExpense : 0;
-  const displaySavingsRate = hasData 
-    ? (totalIncome > 0 ? Math.round((totalBalance / totalIncome) * 1000) / 10 : 0) 
+  const displayIncome = filteredIncomeList.reduce((sum, i) => sum + (i.amount || 0), 0);
+  const displayExpense = filteredExpenseList.reduce((sum, i) => sum + (i.amount || 0), 0);
+  const displayBalance = displayIncome - displayExpense;
+  const displaySavingsRate = displayIncome > 0 
+    ? Math.round((displayBalance / displayIncome) * 1000) / 10 
     : 0;
 
-  // 2. Spending Overview Chart Data (Daily breakdown)
+  // 2. Spending Overview Chart Data (Daily or Weekly breakdown)
   const spendingChartData = hasData 
     ? (() => {
-        // Compute daily spending for current week dynamically
-        const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-        const dayMap = days.reduce((acc, d) => ({ ...acc, [d]: 0 }), {});
-        expenseList.forEach(e => {
-          if (!e.date) return;
-          const dayName = new Date(e.date).toLocaleDateString("en-US", { weekday: "short" });
-          if (dayMap[dayName] !== undefined) {
-            dayMap[dayName] += e.amount || 0;
-          }
-        });
-        return days.map(d => ({ day: d, amount: dayMap[d] }));
+        if (dateFilter === "This Week") {
+          const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+          const dayMap = days.reduce((acc, d) => ({ ...acc, [d]: 0 }), {});
+          filteredExpenseList.forEach(e => {
+            const dayName = new Date(e.date).toLocaleDateString("en-US", { weekday: "short" });
+            if (dayMap[dayName] !== undefined) {
+              dayMap[dayName] += e.amount || 0;
+            }
+          });
+          return days.map(d => ({ day: d, amount: dayMap[d] }));
+        } else {
+          // This Month - group by weeks
+          const weeks = ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"];
+          const weekMap = weeks.reduce((acc, w) => ({ ...acc, [w]: 0 }), {});
+          filteredExpenseList.forEach(e => {
+            const dayOfMonth = new Date(e.date).getDate();
+            let weekName = "Week 5";
+            if (dayOfMonth <= 7) weekName = "Week 1";
+            else if (dayOfMonth <= 14) weekName = "Week 2";
+            else if (dayOfMonth <= 21) weekName = "Week 3";
+            else if (dayOfMonth <= 28) weekName = "Week 4";
+            weekMap[weekName] += e.amount || 0;
+          });
+          return weeks.map(w => ({ day: w, amount: weekMap[w] }));
+        }
       })()
     : [];
 
@@ -109,7 +163,7 @@ const Home = () => {
   const categoriesData = hasData 
     ? (() => {
         const catMap = {};
-        expenseList.forEach(e => {
+        filteredExpenseList.forEach(e => {
           catMap[e.category] = (catMap[e.category] || 0) + (e.amount || 0);
         });
         const total = Object.values(catMap).reduce((a, b) => a + b, 0) || 1;
@@ -139,8 +193,8 @@ const Home = () => {
   // 4. Recent Transactions
   const displayTransactions = hasData
     ? [
-        ...incomeList.map((i) => ({ ...i, type: "Income" })),
-        ...expenseList.map((e) => ({ ...e, type: "Expense" })),
+        ...filteredIncomeList.map((i) => ({ ...i, type: "Income" })),
+        ...filteredExpenseList.map((e) => ({ ...e, type: "Expense" })),
       ]
         .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0))
         .slice(0, 5)
@@ -156,7 +210,7 @@ const Home = () => {
           }
           return {
             name: t.source || t.category || "Transaction",
-            date: t.date ? new Date(t.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "May 24, 2026",
+            date: t.date ? new Date(t.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "-",
             subtitle: t.type === "Income" ? "Income" : t.category,
             amount: t.amount,
             type: t.type,
@@ -231,7 +285,7 @@ const Home = () => {
       {/* Date Filter & Export Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--border)] pb-2.5 shrink-0">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--text-muted)]">Aesthetic Dashboard</span>
+          <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--text-muted)]">{t("aestheticDashboard")}</span>
           <button 
             onClick={() => navigate("/pro-plan")}
             className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 cursor-pointer hover:bg-indigo-500/20 transition-all select-none"
@@ -241,18 +295,17 @@ const Home = () => {
           </button>
         </div>
         <div className="flex flex-wrap items-center gap-3 self-end">
-          {/* Calendar Picker Mockup */}
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--surface)] border border-[var(--border)] rounded-lg text-xs text-[var(--text-secondary)] shadow-sm cursor-pointer hover:bg-[var(--surface-3)] transition-colors">
+          {/* Calendar Picker Dynamic Label */}
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--surface)] border border-[var(--border)] rounded-lg text-xs text-[var(--text-secondary)] shadow-sm">
             <Calendar size={13} className="text-[var(--text-muted)]" />
-            <span className="font-medium">May 18 - May 24, 2026</span>
-            <ChevronDown size={11} className="text-[var(--text-muted)]" />
+            <span className="font-semibold text-xs tracking-tight text-[var(--text-primary)]">{formatDateRange(filterStart, filterEnd)}</span>
           </div>
 
           <div className="relative">
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="input-styled py-1.5 w-28 appearance-none text-xs pr-8"
+              className="input-styled py-1.5 w-28 appearance-none text-xs pr-8 cursor-pointer"
               style={{ 
                 backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`, 
                 backgroundPosition: 'right 0.75rem center', 
@@ -260,8 +313,8 @@ const Home = () => {
                 backgroundRepeat: 'no-repeat' 
               }}
             >
-              <option value="This Week">This Week</option>
-              <option value="This Month">This Month</option>
+              <option value="This Week">{t("thisWeek")}</option>
+              <option value="This Month">{t("thisMonth")}</option>
             </select>
           </div>
 
@@ -274,8 +327,8 @@ const Home = () => {
             }`}
             title="Download CSV Reports"
           >
-            {user?.role === "PRO" || user?.role === "ADMIN" ? <Download size={13} /> : <Zap size={13} className="text-indigo-500 animate-pulse animate-duration-1000" />}
-            <span>Export CSV</span>
+            {user?.role === "PRO" || user?.role === "ADMIN" ? <Download size={13} /> : <Zap size={13} className="text-indigo-500 animate-pulse" />}
+            <span>{t("exportCsv")}</span>
           </button>
         </div>
       </div>
@@ -285,10 +338,10 @@ const Home = () => {
         <div className="card p-3.5 bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-pink-500/5 border-indigo-500/20 shadow-sm flex items-center justify-between shrink-0 mb-4 animate-fade-in">
           <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
             <Award size={14} className="fill-indigo-600 dark:fill-indigo-400 animate-pulse" />
-            <span className="text-[11px] font-bold">Professional Member Active • Remaining days: {subStatus.remainingDays}</span>
+            <span className="text-[11px] font-bold">{t("premiumProActive")} • Remaining days: {subStatus.remainingDays}</span>
           </div>
           <button onClick={() => navigate("/pro-plan")} className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">
-            Manage Subscription
+            {t("manageSubscription")}
           </button>
         </div>
       )}
@@ -299,7 +352,7 @@ const Home = () => {
             <span className="text-[11px] font-semibold">Payment verification pending. Pro features will unlock within 30 minutes.</span>
           </div>
           <button onClick={() => navigate("/pro-plan")} className="text-[9px] font-bold text-amber-600 dark:text-amber-500 hover:underline cursor-pointer">
-            View Details
+            {t("viewDetails")}
           </button>
         </div>
       )}
@@ -310,15 +363,15 @@ const Home = () => {
         <div className="card p-4 relative overflow-hidden">
           <div className="flex justify-between items-start">
             <div className="space-y-0.5">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Total Balance</p>
+              <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-muted)]">{t("totalBalance")}</p>
               <h3 className="text-xl font-black text-[var(--text-primary)] tracking-tight">{formatCurrency(displayBalance)}</h3>
               {hasData ? (
                 <p className="text-[9px] font-semibold text-emerald-500 flex items-center gap-1 mt-0.5">
                   <span>↑ 12.5%</span>
-                  <span className="text-[var(--text-muted)] font-normal">vs last week</span>
+                  <span className="text-[var(--text-muted)] font-normal">{t("vsLastWeek")}</span>
                 </p>
               ) : (
-                <p className="text-[9px] text-[var(--text-muted)] mt-0.5">No recent activity</p>
+                <p className="text-[9px] text-[var(--text-muted)] mt-0.5">{t("noRecentActivity")}</p>
               )}
             </div>
             <div className="w-8 h-8 rounded-lg bg-indigo-500/5 dark:bg-indigo-500/10 text-indigo-500 border border-indigo-500/10 flex items-center justify-center shrink-0">
@@ -331,15 +384,15 @@ const Home = () => {
         <div className="card p-4 relative overflow-hidden">
           <div className="flex justify-between items-start">
             <div className="space-y-0.5">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Total Income</p>
+              <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-muted)]">{t("totalIncome")}</p>
               <h3 className="text-xl font-black text-[var(--text-primary)] tracking-tight">{formatCurrency(displayIncome)}</h3>
               {hasData ? (
                 <p className="text-[9px] font-semibold text-emerald-500 flex items-center gap-1 mt-0.5">
                   <span>↑ 18.2%</span>
-                  <span className="text-[var(--text-muted)] font-normal">vs last week</span>
+                  <span className="text-[var(--text-muted)] font-normal">{t("vsLastWeek")}</span>
                 </p>
               ) : (
-                <p className="text-[9px] text-[var(--text-muted)] mt-0.5">No recent activity</p>
+                <p className="text-[9px] text-[var(--text-muted)] mt-0.5">{t("noRecentActivity")}</p>
               )}
             </div>
             <div className="w-8 h-8 rounded-lg bg-emerald-500/5 dark:bg-emerald-500/10 text-emerald-500 border border-emerald-500/10 flex items-center justify-center shrink-0">
@@ -352,15 +405,15 @@ const Home = () => {
         <div className="card p-4 relative overflow-hidden">
           <div className="flex justify-between items-start">
             <div className="space-y-0.5">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Total Expense</p>
+              <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-muted)]">{t("totalExpense")}</p>
               <h3 className="text-xl font-black text-[var(--text-primary)] tracking-tight">{formatCurrency(displayExpense)}</h3>
               {hasData ? (
                 <p className="text-[9px] font-semibold text-rose-500 flex items-center gap-1 mt-0.5">
                   <span>↓ 8.4%</span>
-                  <span className="text-[var(--text-muted)] font-normal">vs last week</span>
+                  <span className="text-[var(--text-muted)] font-normal">{t("vsLastWeek")}</span>
                 </p>
               ) : (
-                <p className="text-[9px] text-[var(--text-muted)] mt-0.5">No recent activity</p>
+                <p className="text-[9px] text-[var(--text-muted)] mt-0.5">{t("noRecentActivity")}</p>
               )}
             </div>
             <div className="w-8 h-8 rounded-lg bg-orange-500/5 dark:bg-orange-500/10 text-orange-500 border border-orange-500/10 flex items-center justify-center shrink-0">
@@ -373,15 +426,15 @@ const Home = () => {
         <div className="card p-4 relative overflow-hidden">
           <div className="flex justify-between items-start">
             <div className="space-y-0.5">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Savings Rate</p>
+              <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-muted)]">{t("savingsRate")}</p>
               <h3 className="text-xl font-black text-[var(--text-primary)] tracking-tight">{displaySavingsRate}%</h3>
               {hasData ? (
                 <p className="text-[9px] font-semibold text-emerald-500 flex items-center gap-1 mt-0.5">
                   <span>↑ 6.3%</span>
-                  <span className="text-[var(--text-muted)] font-normal">vs last week</span>
+                  <span className="text-[var(--text-muted)] font-normal">{t("vsLastWeek")}</span>
                 </p>
               ) : (
-                <p className="text-[9px] text-[var(--text-muted)] mt-0.5">No recent activity</p>
+                <p className="text-[9px] text-[var(--text-muted)] mt-0.5">{t("noRecentActivity")}</p>
               )}
             </div>
             <div className="w-8 h-8 rounded-lg bg-blue-500/5 dark:bg-blue-500/10 text-blue-500 border border-blue-500/10 flex items-center justify-center shrink-0">
@@ -398,28 +451,21 @@ const Home = () => {
         <div className="lg:col-span-3 card p-4 flex flex-col min-h-0">
           <div className="flex items-center justify-between mb-3 border-b border-[var(--border)] pb-2 shrink-0">
             <div>
-              <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Spending Overview</h3>
+              <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">{t("spendingOverview")}</h3>
               <div className="flex items-baseline gap-2 mt-0.5">
                 <span className="text-lg font-black text-[var(--text-primary)]">{formatCurrency(displayExpense)}</span>
                 {hasData && (
                   <span className="text-[9px] font-semibold text-rose-500 flex items-center gap-0.5">
                     <span>↓ 8.4%</span>
-                    <span className="text-[var(--text-muted)] font-normal">vs last week</span>
+                    <span className="text-[var(--text-muted)] font-normal">{t("vsLastWeek")}</span>
                   </span>
                 )}
               </div>
             </div>
             
-            <select className="input-styled py-1 w-24 text-[10px] cursor-pointer appearance-none"
-              style={{ 
-                backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`, 
-                backgroundPosition: 'right 0.5rem center', 
-                backgroundSize: '1rem', 
-                backgroundRepeat: 'no-repeat' 
-              }}
-            >
-              <option>This Week</option>
-            </select>
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[var(--text-secondary)] bg-[var(--surface-3)] px-2.5 py-1 rounded border border-[var(--border)]">
+              <span>{t(dateFilter.toLowerCase().replace(" ", ""))}</span>
+            </div>
           </div>
 
           <div className="flex-1 min-h-0 w-full flex items-center justify-center">
@@ -458,7 +504,7 @@ const Home = () => {
               </ResponsiveContainer>
             ) : (
               <div className="flex flex-col items-center justify-center text-center p-4">
-                <p className="text-xs font-semibold text-[var(--text-secondary)]">No spending activity</p>
+                <p className="text-xs font-semibold text-[var(--text-secondary)]">{t("noSpendingActivity")}</p>
                 <p className="text-[9px] text-[var(--text-muted)] mt-0.5">Transactions added will show up in the chart</p>
               </div>
             )}
@@ -469,18 +515,11 @@ const Home = () => {
         <div className="lg:col-span-2 card p-4 flex flex-col min-h-0">
           <div className="flex items-center justify-between mb-3 border-b border-[var(--border)] pb-2 shrink-0">
             <div>
-              <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Expense by Category</h3>
+              <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">{t("expenseByCategory")}</h3>
             </div>
-            <select className="input-styled py-1 w-24 text-[10px] cursor-pointer appearance-none"
-              style={{ 
-                backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`, 
-                backgroundPosition: 'right 0.5rem center', 
-                backgroundSize: '1rem', 
-                backgroundRepeat: 'no-repeat' 
-              }}
-            >
-              <option>This Week</option>
-            </select>
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[var(--text-secondary)] bg-[var(--surface-3)] px-2.5 py-1 rounded border border-[var(--border)]">
+              <span>{t(dateFilter.toLowerCase().replace(" ", ""))}</span>
+            </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-between flex-1 min-h-0 gap-4">
@@ -530,7 +569,7 @@ const Home = () => {
               </>
             ) : (
               <div className="flex flex-col items-center justify-center text-center p-4 w-full h-full">
-                <p className="text-xs font-semibold text-[var(--text-secondary)]">No categories recorded</p>
+                <p className="text-xs font-semibold text-[var(--text-secondary)]">{t("noCategoriesRecorded")}</p>
                 <p className="text-[9px] text-[var(--text-muted)] mt-0.5">Create transactions to view category share</p>
               </div>
             )}
@@ -545,36 +584,36 @@ const Home = () => {
         {/* Column 1: Recent Transactions */}
         <div className="card p-4 flex flex-col min-h-0">
           <div className="flex items-center justify-between mb-3 border-b border-[var(--border)] pb-2 shrink-0">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Recent Transactions</h3>
+            <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">{t("recentTransactions")}</h3>
             <button 
               onClick={() => navigate("/filter")}
               className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-0.5 cursor-pointer hover:opacity-85"
             >
-              <span>View All</span>
+              <span>{t("viewAll")}</span>
             </button>
           </div>
 
           <div className="space-y-2.5 flex-1 overflow-y-auto pr-1 scrollbar-thin min-h-0">
             {hasData ? (
-              displayTransactions.map((t, idx) => (
+              displayTransactions.map((tItem, idx) => (
                 <div key={idx} className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className={`w-7.5 h-7.5 rounded-lg flex items-center justify-center shrink-0 ${t.colorClass}`}>
-                      <t.icon size={13} />
+                    <div className={`w-7.5 h-7.5 rounded-lg flex items-center justify-center shrink-0 ${tItem.colorClass}`}>
+                      <tItem.icon size={13} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-[var(--text-primary)] truncate leading-none mb-1">{t.name}</p>
-                      <p className="text-[9px] text-[var(--text-muted)] leading-none">{t.date} • {t.subtitle}</p>
+                      <p className="text-xs font-bold text-[var(--text-primary)] truncate leading-none mb-1">{tItem.name}</p>
+                      <p className="text-[9px] text-[var(--text-muted)] leading-none">{tItem.date} • {tItem.subtitle}</p>
                     </div>
                   </div>
-                  <div className={`text-xs font-bold shrink-0 ${t.type === "Income" ? "text-emerald-500" : "text-rose-500"}`}>
-                    {t.type === "Income" ? "+" : "-"}{formatCurrency(t.amount)}
+                  <div className={`text-xs font-bold shrink-0 ${tItem.type === "Income" ? "text-emerald-500" : "text-rose-500"}`}>
+                    {tItem.type === "Income" ? "+" : "-"}{formatCurrency(tItem.amount)}
                   </div>
                 </div>
               ))
             ) : (
               <div className="flex flex-col items-center justify-center py-6 text-center h-full">
-                <p className="text-xs font-semibold text-[var(--text-secondary)]">No transactions yet</p>
+                <p className="text-xs font-semibold text-[var(--text-secondary)]">{t("noTransactionsYet")}</p>
                 <p className="text-[9px] text-[var(--text-muted)] mt-0.5">Start by adding incomes or expenses</p>
               </div>
             )}
@@ -584,12 +623,12 @@ const Home = () => {
         {/* Column 2: Budget Overview */}
         <div className="card p-4 flex flex-col min-h-0">
           <div className="flex items-center justify-between mb-3 border-b border-[var(--border)] pb-2 shrink-0">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Budget Overview</h3>
+            <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">{t("budgetOverview")}</h3>
             <button 
               onClick={() => navigate("/budget")}
               className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-0.5 cursor-pointer hover:opacity-85"
             >
-              <span>View All</span>
+              <span>{t("viewAll")}</span>
             </button>
           </div>
 
@@ -603,7 +642,6 @@ const Home = () => {
                       <strong className="text-[var(--text-primary)]">{formatCurrency(b.spent)}</strong> / {formatCurrency(b.total)}
                     </span>
                   </div>
-                  {/* Progress bar */}
                   <div className="flex items-center gap-2">
                     <div className="flex-1 h-1 bg-black/5 dark:bg-white/10 rounded-full overflow-hidden">
                       <div 
@@ -620,7 +658,7 @@ const Home = () => {
               ))
             ) : (
               <div className="flex flex-col items-center justify-center py-6 text-center h-full">
-                <p className="text-xs font-semibold text-[var(--text-secondary)]">No active budgets</p>
+                <p className="text-xs font-semibold text-[var(--text-secondary)]">{t("noActiveBudgets")}</p>
                 <p className="text-[9px] text-[var(--text-muted)] mt-0.5">Your spending categories will show up here</p>
               </div>
             )}
@@ -630,7 +668,7 @@ const Home = () => {
         {/* Column 3: AI Insight Card */}
         <div className="card p-4 flex flex-col min-h-0">
           <div className="flex items-center justify-between mb-3 border-b border-[var(--border)] pb-2 shrink-0">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">AI Insight</h3>
+            <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">{t("aiInsight")}</h3>
             <span className="px-1.5 py-0.5 text-[8px] font-bold text-indigo-600 bg-indigo-500/10 border border-indigo-500/15 rounded-full leading-none shrink-0">
               New
             </span>
@@ -643,7 +681,7 @@ const Home = () => {
             <p className="text-xs font-bold leading-normal max-w-[200px]" style={{ color: "var(--text-primary)" }}>
               {hasData 
                 ? "You spent ₹2,150 less on Food & Dining this week compared to last week."
-                : "AI Insights will automatically analyze spending patterns once you start logging transactions."}
+                : t("aiInsightPlaceholder")}
             </p>
           </div>
 
@@ -651,7 +689,7 @@ const Home = () => {
             onClick={() => navigate("/ai-insights")}
             className="btn-secondary w-full py-1.5 text-xs font-bold cursor-pointer mt-2"
           >
-            View Details
+            {t("viewDetails")}
           </button>
         </div>
 

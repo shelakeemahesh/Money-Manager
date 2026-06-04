@@ -16,24 +16,30 @@ import {
 import AppContext from "../context/AppContext";
 
 const navLinks = [
-    { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { to: "/filter", label: "Transactions", icon: SlidersHorizontal },
-    { to: "/income", label: "Income", icon: TrendingUp },
-    { to: "/expense", label: "Expense", icon: TrendingDown },
-    { to: "/category", label: "Categories", icon: Tag },
-    { to: "/budget", label: "Budgets", icon: Sparkles },
-    { to: "/ai-insights", label: "AI Insights", icon: Sparkles, badge: "New" },
-    { to: "/settings", label: "Settings", icon: Settings },
+    { to: "/dashboard", label: "Dashboard", key: "dashboard", icon: LayoutDashboard },
+    { to: "/filter", label: "Transactions", key: "transactions", icon: SlidersHorizontal },
+    { to: "/income", label: "Income", key: "income", icon: TrendingUp },
+    { to: "/expense", label: "Expense", key: "expense", icon: TrendingDown },
+    { to: "/category", label: "Categories", key: "categories", icon: Tag },
+    { to: "/budget", label: "Budgets", key: "budgets", icon: Sparkles },
+    { to: "/ai-insights", label: "AI Insights", key: "aiInsights", icon: Sparkles, badge: "New" },
+    { to: "/settings", label: "Settings", key: "settings", icon: Settings },
 ];
 
 const Sidebar = ({ onClose }) => {
-    const { user } = useContext(AppContext);
+    const { user, t } = useContext(AppContext);
     const navigate = useNavigate();
     const isProOrAdmin = user?.role === "PRO" || user?.role === "ADMIN";
 
     const handleNavClick = () => {
         if (onClose) onClose();
     };
+
+    const promoFeatures = [
+        "predictiveAiInsights",
+        "unlimitedTrackingNodes",
+        "advancedCustomBudgets"
+    ];
 
     return (
         <aside className="w-[240px] min-h-screen flex flex-col shrink-0 border-r bg-[var(--surface)] border-[var(--border)] transition-colors duration-200">
@@ -60,7 +66,7 @@ const Sidebar = ({ onClose }) => {
             <nav className="flex flex-col gap-0.5 px-3 py-4 flex-1 overflow-y-auto">
                 {navLinks.map((link) => (
                     <NavLink
-                        key={link.label}
+                        key={link.key}
                         to={link.to}
                         onClick={handleNavClick}
                         className={({ isActive }) =>
@@ -76,7 +82,7 @@ const Sidebar = ({ onClose }) => {
                             return (
                                 <>
                                     <LinkIcon size={14} className={isActive ? "text-indigo-600 dark:text-indigo-400" : "text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors"} />
-                                    <span className="flex-1 tracking-tight">{link.label}</span>
+                                    <span className="flex-1 tracking-tight">{t(link.key)}</span>
                                     {link.badge && (
                                         <span className="px-1.5 py-0.5 text-[8px] font-bold text-white bg-indigo-600 rounded-full leading-none">
                                             {link.badge}
@@ -104,27 +110,23 @@ const Sidebar = ({ onClose }) => {
                         )}
                     </div>
                     <span className="text-xs font-black tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
-                        {isProOrAdmin ? "Premium Pro Active" : "Pro Plan Upgrade"}
+                        {isProOrAdmin ? t("premiumProActive") : t("proPlanUpgrade")}
                     </span>
                 </div>
                 
                 <p className="text-[10px] text-[var(--text-secondary)] mb-3.5 leading-relaxed relative z-10 font-medium">
                     {isProOrAdmin 
-                        ? "You have full access to predictive AI audits, forecasting models, and detailed sheets exports."
-                        : "Activate predictive AI audits, forecasting models, and detailed sheets exports."
+                        ? t("proPlanDescActive")
+                        : t("proPlanDescPromo")
                     }
                 </p>
 
                 {/* Feature Highlights */}
                 <div className="space-y-1.5 mb-4 relative z-10">
-                    {[
-                        "Predictive AI Insights",
-                        "Unlimited Tracking Nodes",
-                        "Advanced Custom Budgets"
-                    ].map((feature, i) => (
+                    {promoFeatures.map((featKey, i) => (
                         <div key={i} className="flex items-center gap-1.5 text-[9px] text-[var(--text-secondary)]">
                             <span className={`w-1 h-1 rounded-full ${isProOrAdmin ? "bg-emerald-500" : "bg-indigo-500"}`} />
-                            <span className="font-semibold">{feature}</span>
+                            <span className="font-semibold">{t(featKey)}</span>
                         </div>
                     ))}
                 </div>
@@ -137,7 +139,7 @@ const Sidebar = ({ onClose }) => {
                             : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-indigo-600/10 hover:shadow-indigo-600/20"
                     }`}
                 >
-                    {isProOrAdmin ? "Manage Subscription" : "Upgrade to Pro"}
+                    {isProOrAdmin ? t("manageSubscription") : t("upgradeToPro")}
                 </button>
             </div>
 
