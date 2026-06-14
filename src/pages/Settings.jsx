@@ -229,12 +229,20 @@ const Settings = () => {
   };
 
   // Actions: Reset DB
-  const executeReset = () => {
-    setIncomeList([]);
-    setExpenseList([]);
-    setCategoryList([]);
-    toast.success("Local transactional nodes cleared successfully.");
-    setWipeConfirmOpen(false);
+  const executeReset = async () => {
+    try {
+      await axiosConfig.post("/profile/wipe-data");
+      setIncomeList([]);
+      setExpenseList([]);
+      const categoryRes = await axiosConfig.get("/categories");
+      setCategoryList(categoryRes.data || []);
+      toast.success("All transactional data and custom categories wiped successfully!");
+    } catch (error) {
+      const errorMsg = error?.response?.data?.message || "Failed to wipe database configurations";
+      toast.error(errorMsg);
+    } finally {
+      setWipeConfirmOpen(false);
+    }
   };
 
   // Actions: Delete Account
