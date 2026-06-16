@@ -32,37 +32,37 @@ const Settings = () => {
     navigate("/login");
   };
 
-  // Active Tab State
+  
   const [activeTab, setActiveTab] = useState("profile");
 
-  // State: Profile Details
+  
   const [fullName, setFullName] = useState(user?.fullName || "");
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
 
-  // State: Change Password
+  
   const [passwords, setPasswords] = useState({ current: "", new: "", confirm: "" });
   const [passLoading, setPassLoading] = useState(false);
 
-  // State: Preferences
+  
   const [currency, setCurrency] = useState("INR");
 
-  // State: Notifications
+  
   const [notifications, setNotifications] = useState({
     emailAlerts: true,
     weeklyDigest: false,
     pushAnomaly: true
   });
 
-  // State: Security Toggles
+  
   const [twoFactor, setTwoFactor] = useState(false);
   const [timeout, setTimeoutVal] = useState("15");
 
-  // Modal State
+  
   const [wipeConfirmOpen, setWipeConfirmOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
-  // Connected Sessions List
+  
   const [sessions, setSessions] = useState(() => {
     const userAgent = navigator.userAgent;
     let os = "Unknown OS";
@@ -90,7 +90,7 @@ const Settings = () => {
     ];
   });
 
-  // Tab configurations
+  
   const TABS = [
     { id: "profile", label: t("profileSettings"), icon: User },
     { id: "security", label: t("securityCredentials"), icon: Lock },
@@ -100,7 +100,7 @@ const Settings = () => {
     { id: "data", label: t("dataManagement"), icon: Database },
   ];
 
-  // Actions: Profile Update
+  
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     if (!fullName.trim()) {
@@ -137,7 +137,7 @@ const Settings = () => {
     }
   };
 
-  // Actions: Update Password
+  
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
     if (!passwords.current || !passwords.new || !passwords.confirm) {
@@ -165,12 +165,12 @@ const Settings = () => {
       });
       toast.success("Password updated successfully! Logging out...");
       
-      // Clear user session/token immediately
+      
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       setUser(null);
       
-      // Delay slightly for visual feedback before redirecting to login
+      
       setTimeout(() => {
         navigate("/login");
       }, 1000);
@@ -182,13 +182,13 @@ const Settings = () => {
     }
   };
 
-  // Actions: Terminate sessions
+  
   const handleTerminateSessions = () => {
     setSessions(prev => prev.filter(s => s.active));
     toast.success("All other active device sessions have been terminated.");
   };
 
-  // Actions: Export All Data
+  
   const exportAllData = () => {
     if (incomeList.length === 0 && expenseList.length === 0) {
       toast.error("No transactional logs available to export.");
@@ -197,7 +197,7 @@ const Settings = () => {
 
     const wb = XLSX.utils.book_new();
 
-    // Inflows Sheet
+    
     if (incomeList.length > 0) {
       const incRows = incomeList.map((item, idx) => ({
         "ID": idx + 1,
@@ -210,7 +210,7 @@ const Settings = () => {
       XLSX.utils.book_append_sheet(wb, wsInc, "Inflow_Log");
     }
 
-    // Outflows Sheet
+    
     if (expenseList.length > 0) {
       const expRows = expenseList.map((item, idx) => ({
         "ID": idx + 1,
@@ -228,7 +228,7 @@ const Settings = () => {
     toast.success("Financial raw data successfully exported to Excel!");
   };
 
-  // Actions: Reset DB
+  
   const executeReset = async () => {
     try {
       await axiosConfig.post("/profile/wipe-data");
@@ -245,7 +245,7 @@ const Settings = () => {
     }
   };
 
-  // Actions: Delete Account
+  
   const executeDeleteAccount = () => {
     setIncomeList([]);
     setExpenseList([]);
@@ -262,7 +262,7 @@ const Settings = () => {
   return (
     <div className="space-y-5 pb-10 animate-fade-in">
       
-      {/* Page Header */}
+      
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-md bg-[var(--surface-3)] border border-[var(--border)] flex items-center justify-center text-[var(--text-secondary)] shrink-0">
@@ -279,10 +279,10 @@ const Settings = () => {
         </div>
       </div>
 
-      {/* Main Grid: Dedicated 2-Column stable grid layout */}
+      
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-stretch w-full">
         
-        {/* Left Column: Sidebar Navigation */}
+        
         <div className="lg:col-span-1 w-full flex flex-row lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible pb-3 lg:pb-0 border-b lg:border-b-0 lg:border-r border-[var(--border)] lg:pr-6 shrink-0 sticky top-20 z-10 bg-[var(--surface-2)] lg:bg-transparent">
           {TABS.map((tab) => {
             const TabIcon = tab.icon;
@@ -307,10 +307,10 @@ const Settings = () => {
           })}
         </div>
 
-        {/* Right Column: Tab Content Panel */}
+        
         <div className="lg:col-span-3 w-full flex flex-col gap-5">
           
-          {/* Tab 1: Profile Settings */}
+          
           {activeTab === "profile" && (
             <div className="card p-5 md:p-6 animate-tab-fade">
               <div>
@@ -328,7 +328,7 @@ const Settings = () => {
               </div>
               
               <form onSubmit={handleUpdateProfile} className="mt-5 space-y-5">
-                {/* Photo selector */}
+                
                 <div className="flex flex-col sm:flex-row items-center gap-4 pb-4 border-b border-[var(--border)]">
                   <div className="shrink-0">
                     <ProfilePhotoSelector 
@@ -346,7 +346,7 @@ const Settings = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  {/* Full Name */}
+                  
                   <Input
                     label="Full Name"
                     type="text"
@@ -355,7 +355,7 @@ const Settings = () => {
                     required
                   />
 
-                  {/* Email (Disabled) */}
+                  
                   <Input
                     label="Account Email"
                     type="email"
@@ -387,10 +387,10 @@ const Settings = () => {
             </div>
           )}
 
-          {/* Tab 2: Security & Credentials */}
+          
           {activeTab === "security" && (
             <div className="space-y-5 animate-tab-fade">
-              {/* Change Password Card */}
+              
               <div className="card p-5 md:p-6">
                 <div>
                   <h3 className="text-sm font-semibold text-[var(--text-primary)]">
@@ -443,7 +443,7 @@ const Settings = () => {
                 </form>
               </div>
 
-              {/* Safeguards Card */}
+              
               <div className="card p-5 md:p-6">
                 <div>
                   <h3 className="text-sm font-semibold flex items-center gap-1.5 text-[var(--text-primary)]">
@@ -510,7 +510,7 @@ const Settings = () => {
             </div>
           )}
 
-          {/* Tab 3: System Preferences */}
+          
           {activeTab === "preferences" && (
             <div className="card p-5 md:p-6 animate-tab-fade">
               <div>
@@ -523,7 +523,7 @@ const Settings = () => {
               </div>
 
               <div className="mt-5 space-y-4">
-                {/* Interface theme */}
+                
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
                   <div className="space-y-0.5">
                     <p className="text-xs font-semibold text-[var(--text-primary)]">{t("themeTitle")}</p>
@@ -547,7 +547,7 @@ const Settings = () => {
                   </button>
                 </div>
 
-                {/* Currency Selection */}
+                
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
                   <div className="space-y-0.5">
                     <p className="text-xs font-semibold text-[var(--text-primary)]">{t("currencyTitle")}</p>
@@ -576,7 +576,7 @@ const Settings = () => {
                   </div>
                 </div>
 
-                {/* Language Selector */}
+                
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-0.5">
                     <p className="text-xs font-semibold text-[var(--text-primary)]">{t("languageTitle")}</p>
@@ -609,7 +609,7 @@ const Settings = () => {
             </div>
           )}
 
-          {/* Tab 4: Notification Channels */}
+          
           {activeTab === "notifications" && (
             <div className="card p-5 md:p-6 animate-tab-fade">
               <div>
@@ -650,7 +650,7 @@ const Settings = () => {
             </div>
           )}
 
-          {/* Tab 5: Connected Sessions */}
+          
           {activeTab === "sessions" && (
             <div className="card p-5 md:p-6 animate-tab-fade">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)] mb-4">
@@ -695,10 +695,10 @@ const Settings = () => {
             </div>
           )}
 
-          {/* Tab 6: Data Management */}
+          
           {activeTab === "data" && (
             <div className="space-y-5 animate-tab-fade">
-              {/* Backup & Exports */}
+              
               <div className="card p-5 md:p-6 relative overflow-hidden">
                 {!(user?.role === "PRO" || user?.role === "ADMIN") && (
                   <div className="absolute inset-0 bg-white/20 dark:bg-black/20 backdrop-blur-sm z-10 rounded-xl flex flex-col items-center justify-center p-6 text-center animate-fade-in">
@@ -732,7 +732,7 @@ const Settings = () => {
                 </div>
               </div>
 
-              {/* Danger Zone */}
+              
               <div className="card p-5 md:p-6 border-rose-500/20 bg-rose-500/[0.01]">
                 <div>
                   <h3 className="text-sm font-semibold flex items-center gap-1.5 text-rose-500">
@@ -743,7 +743,7 @@ const Settings = () => {
                 </div>
 
                 <div className="mt-5 space-y-4">
-                  {/* Reset Database */}
+                  
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-rose-500/10">
                     <div className="space-y-0.5">
                       <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">Reset Local Database States</p>
@@ -757,7 +757,7 @@ const Settings = () => {
                     </button>
                   </div>
 
-                  {/* Delete Account */}
+                  
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">Permanently Delete Account</p>
@@ -779,7 +779,7 @@ const Settings = () => {
 
       </div>
 
-      {/* Wipe Database Confirmation */}
+      
       <ConfirmDialog
         open={wipeConfirmOpen}
         title="Wipe database configuration?"
@@ -790,7 +790,7 @@ const Settings = () => {
         onCancel={() => setWipeConfirmOpen(false)}
       />
 
-      {/* Delete Account Confirmation */}
+      
       <ConfirmDialog
         open={deleteConfirmOpen}
         title="Permanently Delete Account?"
