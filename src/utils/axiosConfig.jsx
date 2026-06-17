@@ -16,6 +16,7 @@ const excludeEndpoints = [
   "/status",
   "/activate",
   "/health",
+  "/auth/google",
 ];
 
 // Track active non-GET requests to prevent concurrent duplicates
@@ -137,7 +138,9 @@ axiosConfig.interceptors.response.use(
     }
 
     if (error.response) {
-      const isAuthRequest = error.config?.url?.includes("/login") || error.config?.url?.includes("/register");
+      const isAuthRequest = error.config?.url?.includes("/login") ||
+                            error.config?.url?.includes("/register") ||
+                            error.config?.url?.includes("/auth/google");
       if ((error.response.status === 401 || error.response.status === 403) && !isAuthRequest) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
