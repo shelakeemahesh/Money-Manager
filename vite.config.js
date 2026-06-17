@@ -10,6 +10,9 @@ const __dirname = path.dirname(__filename)
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    port: 5174,
+  },
   resolve: {
     alias: {
       'sonner': path.resolve(__dirname, 'src/utils/toast.js'),
