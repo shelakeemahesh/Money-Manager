@@ -24,7 +24,6 @@ const navLinks = [
     { to: "/category", label: "Categories", key: "categories", icon: Tag },
     {to: "/budget", label: "Budgets", key: "budgets", icon: Sparkles},
     {to: "/ai-insights", label: "AI Insights", key: "aiInsights", icon: Sparkles, badge: "New"},
-    {to: "/friends", label: "Friend Spends", key: "friends", icon: Users},
     {to: "/friends-ledger", label: "Friend Ledger", key: "friendsLedger", icon: Users},
     {to: "/settings", label: "Settings", key: "settings", icon: Settings},
 ];

@@ -12,7 +12,6 @@ import Budget from "./pages/Budget";
 import AIInsights from "./pages/AIInsights";
 import Settings from "./pages/Settings";
 import ProPlan from "./pages/ProPlan";
-import FriendSpends from "./pages/FriendSpends";
 import FriendLedger from "./pages/FriendLedger";
 
 import Login from "./pages/auth/Login";
@@ -71,7 +70,6 @@ const App = () => {
               <Route path="/budget" element={<ErrorBoundary><Budget /></ErrorBoundary>} />
               <Route path="/ai-insights" element={<ErrorBoundary><AIInsights /></ErrorBoundary>} />
               <Route path="/pro-plan" element={<ErrorBoundary><ProPlan /></ErrorBoundary>} />
-              <Route path="/friends" element={<ErrorBoundary><FriendSpends /></ErrorBoundary>} />
               <Route path="/friends-ledger" element={<ErrorBoundary><FriendLedger /></ErrorBoundary>} />
               <Route path="/settings" element={<ErrorBoundary><Settings /></ErrorBoundary>} />
             </Route>
