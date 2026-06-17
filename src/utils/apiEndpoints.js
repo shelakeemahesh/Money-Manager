@@ -77,4 +77,7 @@ export const API_ENDPOINTS = {
   ADMIN_SUBSCRIPTION_REQUESTS: `${BASE_URL}/admin/subscriptions/requests`,
   ADMIN_APPROVE_SUBSCRIPTION: (id) => `${BASE_URL}/admin/subscriptions/requests/${id}/approve`,
   ADMIN_REJECT_SUBSCRIPTION: (id) => `${BASE_URL}/admin/subscriptions/requests/${id}/reject`,
+  // Friend Spends
+  FRIEND_EXPENSES: `${BASE_URL}/friend-expenses`,
+  FRIEND_STATS: `${BASE_URL}/friend-expenses/stats`,
 };

@@ -11,7 +11,8 @@ import {
     ChevronDown,
     Settings,
     Trophy,
-    Wallet
+    Wallet,
+    Users
 } from "lucide-react";
 import AppContext from "../context/AppContext";
 
@@ -21,9 +22,10 @@ const navLinks = [
     { to: "/income", label: "Income", key: "income", icon: TrendingUp },
     { to: "/expense", label: "Expense", key: "expense", icon: TrendingDown },
     { to: "/category", label: "Categories", key: "categories", icon: Tag },
-    { to: "/budget", label: "Budgets", key: "budgets", icon: Sparkles },
-    { to: "/ai-insights", label: "AI Insights", key: "aiInsights", icon: Sparkles, badge: "New" },
-    { to: "/settings", label: "Settings", key: "settings", icon: Settings },
+    {to: "/budget", label: "Budgets", key: "budgets", icon: Sparkles},
+    {to: "/ai-insights", label: "AI Insights", key: "aiInsights", icon: Sparkles, badge: "New"},
+    {to: "/friends", label: "Friend Spends", key: "friends", icon: Users},
+    {to: "/settings", label: "Settings", key: "settings", icon: Settings},
 ];
 
 const Sidebar = ({ onClose }) => {
