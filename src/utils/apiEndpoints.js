@@ -80,4 +80,9 @@ export const API_ENDPOINTS = {
   // Friend Spends
   FRIEND_EXPENSES: `${BASE_URL}/friend-expenses`,
   FRIEND_STATS: `${BASE_URL}/friend-expenses/stats`,
+  // Friend Transactions (Ledger)
+  FRIEND_TRANSACTIONS: `${BASE_URL}/friend-transactions`,
+  FRIEND_TRANSACTIONS_SETTLE: (id) => `${BASE_URL}/friend-transactions/${id}/settle`,
+  FRIEND_TRANSACTIONS_SUMMARY: `${BASE_URL}/friend-transactions/summary`,
+  FRIEND_TRANSACTIONS_DETAIL_SUMMARY: (name) => `${BASE_URL}/friend-transactions/summary/${name}`,
 };
