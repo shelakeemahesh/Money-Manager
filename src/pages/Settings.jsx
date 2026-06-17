@@ -359,7 +359,7 @@ const Settings = () => {
                   <Input
                     label="Account Email"
                     type="email"
-                    value={user?.email || "admin@moneymanager.com"}
+                    value={user?.email || "admin@credowallet.com"}
                     disabled
                     icon={<Mail size={13} />}
                   />

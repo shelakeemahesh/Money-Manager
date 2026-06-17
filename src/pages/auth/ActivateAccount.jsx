@@ -57,7 +57,7 @@ const ActivateAccount = () => {
           <div className="w-8 h-8 rounded-lg bg-[var(--text-primary)] flex items-center justify-center">
             <Wallet size={15} className="text-[var(--surface)]" />
           </div>
-          <span className="font-bold tracking-tight text-sm text-[var(--text-primary)]">MoneyManager</span>
+          <span className="font-bold tracking-tight text-sm text-[var(--text-primary)]">CredoWallet</span>
         </div>
 
         {status === "loading" && (
@@ -73,7 +73,7 @@ const ActivateAccount = () => {
             <CheckCircle2 size={44} className="mx-auto text-emerald-500" />
             <h1 className="text-base font-black text-[var(--text-primary)]">Account Activated!</h1>
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-              Your Money Manager account has been successfully verified. You can now access your personal dashboard.
+              Your CredoWallet account has been successfully verified. You can now access your personal dashboard.
             </p>
             <button
               onClick={() => navigate("/login")}

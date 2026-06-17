@@ -365,7 +365,7 @@ const AdminBackup = () => {
                         </label>
                         <input
                           type="text"
-                          placeholder="e.g. moneymanager-db-backups"
+                          placeholder="e.g. credowallet-db-backups"
                           value={backupSettings.awsBucket}
                           onChange={(e) =>
                             setBackupSettings({ ...backupSettings, awsBucket: e.target.value })

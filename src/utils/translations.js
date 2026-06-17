@@ -88,7 +88,7 @@ export const translations = {
     languageDesc: "Choose preferred language settings for textual labels",
 
     // Pro Plan
-    proPlanTitle: "Money Manager Pro",
+    proPlanTitle: "CredoWallet Pro",
     proPlanDesc: "Unlock the full suite of financial intelligence nodes",
     freeStarter: "Free Starter",
     proPlanCardTitle: "Professional Plan",
@@ -188,7 +188,7 @@ export const translations = {
     languageDesc: "पाठ्य लेबल के लिए पसंदीदा भाषा चुनें",
 
     // Pro Plan
-    proPlanTitle: "मनी मैनेजर प्रो",
+    proPlanTitle: "क्रेडोवॉलेट प्रो",
     proPlanDesc: "वित्तीय खुफिया सुविधाओं का पूरा लाभ उठाएं",
     freeStarter: "फ्री स्टार्टर",
     proPlanCardTitle: "प्रोफेशनल प्लान",
@@ -288,7 +288,7 @@ export const translations = {
     languageDesc: "Elija la configuración de idioma preferida para las etiquetas de texto",
 
     // Pro Plan
-    proPlanTitle: "Money Manager Pro",
+    proPlanTitle: "CredoWallet Pro",
     proPlanDesc: "Desbloquee el conjunto completo de funciones de inteligencia financiera",
     freeStarter: "Inicio Gratis",
     proPlanCardTitle: "Plan Profesional",
@@ -388,7 +388,7 @@ export const translations = {
     languageDesc: "Choisissez votre langue préférée pour les étiquettes textuelles",
 
     // Pro Plan
-    proPlanTitle: "Money Manager Pro",
+    proPlanTitle: "CredoWallet Pro",
     proPlanDesc: "Débloquez l'ensemble des fonctionnalités d'intelligence financière",
     freeStarter: "Démarrage Gratuit",
     proPlanCardTitle: "Plan Professionnel",

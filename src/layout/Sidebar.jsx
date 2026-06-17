@@ -60,7 +60,7 @@ const Sidebar = ({ onClose }) => {
                     <Wallet size={15} />
                 </div>
                 <div>
-                    <span className="font-bold text-sm tracking-tight text-[var(--text-primary)]">Money Manager</span>
+                    <span className="font-bold text-sm tracking-tight text-[var(--text-primary)]">CredoWallet</span>
                 </div>
             </div>
 
@@ -159,7 +159,7 @@ const Sidebar = ({ onClose }) => {
                 </div>
                 <div className="min-w-0 flex-1">
                     <p className="text-[var(--text-primary)] text-xs font-bold truncate leading-none mb-1">{user?.fullName || "Admin"}</p>
-                    <p className="text-[var(--text-muted)] text-[10px] truncate leading-none">{user?.email || "admin@moneymanager.com"}</p>
+                    <p className="text-[var(--text-muted)] text-[10px] truncate leading-none">{user?.email || "admin@credowallet.com"}</p>
                 </div>
                 <ChevronDown size={12} className="text-[var(--text-muted)] shrink-0" />
             </div>

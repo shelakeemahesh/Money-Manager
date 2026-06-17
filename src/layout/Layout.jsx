@@ -29,7 +29,7 @@ const Layout = () => {
     const navigate = useNavigate();
     const notifyRef = useRef(null);
 
-    const pageTitle = PAGE_TITLES[location.pathname] || "Money Manager";
+    const pageTitle = PAGE_TITLES[location.pathname] || "CredoWallet";
 
     // Close menus on click outside
     useEffect(() => {

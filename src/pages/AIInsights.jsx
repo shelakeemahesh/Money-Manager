@@ -94,7 +94,7 @@ const AIInsights = () => {
             </div>
             <h3 className="text-sm font-bold text-[var(--text-primary)]">Unlock AI Insights Advisor</h3>
             <p className="text-xs text-[var(--text-secondary)] max-w-xs mt-1.5 mb-5 leading-relaxed font-medium">
-              Get customized projections, automated outflow anomaly audits, and real-time capital efficiency allocations with Money Manager Pro.
+              Get customized projections, automated outflow anomaly audits, and real-time capital efficiency allocations with CredoWallet Pro.
             </p>
             <button
               onClick={() => navigate("/pro-plan")}

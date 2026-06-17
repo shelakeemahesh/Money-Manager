@@ -428,7 +428,7 @@ const Budget = () => {
                 </div>
                 <h3 className="text-sm font-bold text-[var(--text-primary)]">Unlock Advanced Budget Planning</h3>
                 <p className="text-xs text-[var(--text-secondary)] max-w-xs mt-1.5 mb-5 leading-relaxed font-medium">
-                  Upgrade to Money Manager Professional to unlock detailed category splits, Core Essentials breakdowns, and AI Synthesis feedback.
+                  Upgrade to CredoWallet Pro to unlock detailed category splits, Core Essentials breakdowns, and AI Synthesis feedback.
                 </p>
                 <button
                   onClick={() => navigate("/pro-plan")}

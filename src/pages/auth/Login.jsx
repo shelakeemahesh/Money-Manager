@@ -70,7 +70,7 @@ const Login = () => {
               <Wallet size={15} className="text-[var(--surface)]" />
             </div>
             <div>
-              <p className="text-[var(--text-primary)] font-bold text-sm leading-none tracking-tight">MoneyManager</p>
+              <p className="text-[var(--text-primary)] font-bold text-sm leading-none tracking-tight">CredoWallet</p>
               <p className="text-[var(--text-muted)] text-[9px] font-semibold tracking-wider uppercase mt-0.5">Fintech Intelligence</p>
             </div>
           </div>
@@ -105,7 +105,7 @@ const Login = () => {
           </div>
         </div>
 
-        <p className="text-[10px] relative z-10 text-[var(--text-muted)]">© 2026 Money Manager. Designed for high performance.</p>
+        <p className="text-[10px] relative z-10 text-[var(--text-muted)]">© 2026 CredoWallet. Designed for high performance.</p>
       </motion.div>
 
       {/* Right Panel - Login Form */}
@@ -123,7 +123,7 @@ const Login = () => {
             <div className="w-8 h-8 rounded-lg bg-[var(--text-primary)] flex items-center justify-center">
               <Wallet size={15} className="text-[var(--surface)]" />
             </div>
-            <span className="font-bold tracking-tight text-sm text-[var(--text-primary)]">MoneyManager</span>
+            <span className="font-bold tracking-tight text-sm text-[var(--text-primary)]">CredoWallet</span>
           </div>
 
           <div className="rounded-md p-6 bg-[var(--surface)] border border-[var(--border)] shadow-sm relative">

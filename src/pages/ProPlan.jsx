@@ -61,7 +61,7 @@ const ProPlan = () => {
   }, [showPaymentView]);
 
   const handleCopyUpi = () => {
-    navigator.clipboard.writeText("moneymanager@upi");
+    navigator.clipboard.writeText("credowallet@upi");
     toast.success("UPI ID copied to clipboard!");
   };
 
@@ -123,7 +123,7 @@ const ProPlan = () => {
   const price = billingCycle === "monthly" ? 99 : 799;
   const upiId = "9503072201-4@ybl";
   // Generate UPI payment URL for QR Code
-  const upiUrl = `upi://pay?pa=${upiId}&pn=MoneyManager&am=${price}&cu=INR&tn=MMUpgrade`;
+  const upiUrl = `upi://pay?pa=${upiId}&pn=CredoWallet&am=${price}&cu=INR&tn=CWUpgrade`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiUrl)}`;
 
   const features = [

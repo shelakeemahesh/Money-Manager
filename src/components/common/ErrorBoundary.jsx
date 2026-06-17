@@ -31,7 +31,7 @@ class ErrorBoundary extends Component {
             <div>
               <h2 className="text-base font-black tracking-tight text-[var(--text-primary)]">Render Execution Faulted</h2>
               <p className="text-xs text-[var(--text-secondary)] mt-1.5 leading-relaxed">
-                MoneyManager failed to draw this page layout. A component in the view tree crashed.
+                CredoWallet failed to draw this page layout. A component in the view tree crashed.
               </p>
             </div>
             {this.state.error && (

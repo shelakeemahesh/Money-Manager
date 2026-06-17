@@ -82,7 +82,7 @@ const ResetPassword = () => {
           <div className="w-8 h-8 rounded-lg bg-[var(--text-primary)] flex items-center justify-center">
             <Wallet size={15} className="text-[var(--surface)]" />
           </div>
-          <span className="font-bold tracking-tight text-sm text-[var(--text-primary)]">MoneyManager</span>
+          <span className="font-bold tracking-tight text-sm text-[var(--text-primary)]">CredoWallet</span>
         </div>
 
         <h1 className="text-lg font-bold text-center tracking-tight text-[var(--text-primary)]">
