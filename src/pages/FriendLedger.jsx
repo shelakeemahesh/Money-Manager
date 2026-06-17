@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Users,
   Plus,
@@ -33,7 +34,8 @@ import {
 import Input from "../components/common/Input";
 
 const FriendLedger = () => {
-  const { theme, t } = useContext(AppContext);
+  const { theme, t, user } = useContext(AppContext);
+  const navigate = useNavigate();
 
   // Lists & Summaries
   const [overallSummary, setOverallSummary] = useState({
@@ -248,16 +250,38 @@ const FriendLedger = () => {
             </p>
           </div>
         </div>
-        <button
-          onClick={handleOpenAdd}
-          className="btn-brand py-2 px-3.5 text-xs font-semibold flex items-center gap-1.5 self-start md:self-auto cursor-pointer"
-        >
-          <Plus size={14} />
-          <span>Add Transaction</span>
-        </button>
+        {(user?.role === "PRO" || user?.role === "ADMIN") && (
+          <button
+            onClick={handleOpenAdd}
+            className="btn-brand py-2 px-3.5 text-xs font-semibold flex items-center gap-1.5 self-start md:self-auto cursor-pointer"
+          >
+            <Plus size={14} />
+            <span>Add Transaction</span>
+          </button>
+        )}
       </div>
 
-      {/* Global Outstanding Summary Cards */}
+      <div className="relative">
+        {/* Premium Blur Lock Overlay */}
+        {!(user?.role === "PRO" || user?.role === "ADMIN") && (
+          <div className="absolute inset-0 bg-white/20 dark:bg-black/20 backdrop-blur-md z-20 rounded-xl border border-[var(--border)] flex flex-col items-center justify-center p-6 text-center animate-fade-in min-h-[450px]">
+            <div className="w-12 h-12 rounded-full bg-indigo-500/10 text-indigo-600 flex items-center justify-center mb-4 shadow-sm">
+              <Users size={22} className="animate-pulse" />
+            </div>
+            <h3 className="text-sm font-bold text-[var(--text-primary)]">Unlock Friend Ledger & Debt Management</h3>
+            <p className="text-xs text-[var(--text-secondary)] max-w-xs mt-1.5 mb-5 leading-relaxed font-medium">
+              Track outstanding lent/borrowed balances, log repayments, settle friend debts, and manage transaction logs with CredoWallet Pro.
+            </p>
+            <button
+              onClick={() => navigate("/pro-plan")}
+              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors shadow-md shadow-indigo-600/10 cursor-pointer"
+            >
+              Upgrade to Pro
+            </button>
+          </div>
+        )}
+
+        {/* Global Outstanding Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Total Lent (Given) */}
         <div className="rounded-xl p-5 bg-[var(--surface)] border border-[var(--border)] relative overflow-hidden shadow-sm">
@@ -743,6 +767,7 @@ const FriendLedger = () => {
           </div>
         )}
       </div>
+    </div>
 
       {/* POPUP FORM MODAL */}
       {showForm && (
