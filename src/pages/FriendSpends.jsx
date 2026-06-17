@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { Users, Plus, Edit2, Trash2, Search, Calendar, DollarSign, Tag, MessageSquare, ArrowRight, X } from "lucide-react";
 import AppContext from "../context/AppContext";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import { 
   getFriendExpenses, 
   createFriendExpense, 
