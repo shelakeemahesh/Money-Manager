@@ -58,3 +58,8 @@ export const resetPassword = async ({ emailOrPhone, otpCode, newPassword }) => {
     newPassword,
   });
 };
+
+// GOOGLE OAUTH
+export const googleLogin = async (idToken) => {
+  return axiosConfig.post("/auth/google", { idToken });
+};

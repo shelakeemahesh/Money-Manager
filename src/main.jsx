@@ -3,6 +3,7 @@ import App from './App.jsx'
 import './index.css'
 import { AppContextProvider } from './context/AppContext.jsx'
 import ErrorBoundary from './components/common/ErrorBoundary.jsx'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 
 // Global button click throttle and request tracking interceptor
 document.addEventListener('click', (event) => {
@@ -41,7 +42,9 @@ document.addEventListener('click', (event) => {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <ErrorBoundary>
     <AppContextProvider>
-      <App />
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <App />
+      </GoogleOAuthProvider>
     </AppContextProvider>
   </ErrorBoundary>
 )

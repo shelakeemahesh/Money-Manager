@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Wallet, TrendingUp, ShieldCheck, ArrowRight, Sun, Moon } from "lucide-react";
 import AppContext from "../../context/AppContext";
 import { toast } from "sonner";
-import { login } from "../../services/authService";
+import { login, googleLogin } from "../../services/authService";
 import Input from "../../components/common/Input";
+import { GoogleLogin } from '@react-oauth/google';
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 
@@ -189,6 +190,39 @@ const Login = () => {
                 )}
               </button>
             </form>
+
+            <div className="mt-5 text-center">
+              <div className="relative flex py-2 items-center">
+                <div className="flex-grow border-t border-[var(--border)]"></div>
+                <span className="flex-shrink mx-4 text-[10px] text-[var(--text-muted)] font-semibold uppercase">Or continue with</span>
+                <div className="flex-grow border-t border-[var(--border)]"></div>
+              </div>
+
+              <div className="flex justify-center mt-4">
+                <GoogleLogin
+                  onSuccess={async (credentialResponse) => {
+                    setLoading(true);
+                    try {
+                      const res = await googleLogin(credentialResponse.credential);
+                      const { token, profile } = res.data;
+                      localStorage.setItem("token", token);
+                      localStorage.setItem("user", JSON.stringify(profile));
+                      setUser(profile);
+                      toast.success("Successfully logged in with Google!");
+                      navigate("/dashboard");
+                    } catch (error) {
+                      toast.error(error?.response?.data?.message || "Google Sign-In failed");
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  onError={() => {
+                    toast.error("Google Authentication failed");
+                  }}
+                  useOneTap
+                />
+              </div>
+            </div>
 
             <p className="mt-6 text-center text-xs text-[var(--text-secondary)]">
               Don't have an account?{" "}
