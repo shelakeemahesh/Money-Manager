@@ -117,6 +117,24 @@ const AdminExpenseManagement = () => {
       }
     },
     {
+      accessorKey: 'title',
+      header: 'Title / Source',
+      cell: (info) => {
+        const title = info.getValue() || '-';
+        const isFriendSpend = title.startsWith("Spend on:");
+        return (
+          <div className="flex flex-col">
+            <span className="text-xs font-semibold text-[var(--text-primary)]">{title}</span>
+            {isFriendSpend && (
+              <span className="text-[9px] font-bold text-indigo-500 dark:text-indigo-400 mt-0.5 inline-block">
+                Friend Spend
+              </span>
+            )}
+          </div>
+        );
+      }
+    },
+    {
       accessorKey: 'category',
       header: 'Category Classification',
       cell: (info) => <span className="font-bold text-xs text-[var(--text-primary)]">{info.getValue()}</span>
@@ -384,6 +402,11 @@ const AdminExpenseManagement = () => {
                     <div className="flex justify-between items-center text-xs pb-3 border-b border-[var(--border)]">
                       <span className="text-[var(--text-muted)] flex items-center gap-1.5"><Hash size={13} /> Node ID</span>
                       <span className="font-mono text-[var(--text-primary)] font-semibold">#{selectedTx.id}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center text-xs pb-3 border-b border-[var(--border)]">
+                      <span className="text-[var(--text-muted)] flex items-center gap-1.5"><FileText size={13} /> Title / Source</span>
+                      <span className="font-bold text-[var(--text-primary)]">{selectedTx.title || '-'}</span>
                     </div>
                     
                     <div className="flex justify-between items-center text-xs pb-3 border-b border-[var(--border)]">
