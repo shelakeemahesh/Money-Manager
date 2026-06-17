@@ -275,7 +275,7 @@ const Home = () => {
     wsExpense["!cols"] = [{ wch: 6 }, { wch: 22 }, { wch: 18 }, { wch: 12 }, { wch: 14 }];
     XLSX.utils.book_append_sheet(wb, wsExpense, "Expenses");
 
-    XLSX.writeFile(wb, "money_manager_fintech_report.xlsx");
+    XLSX.writeFile(wb, "credowallet_fintech_report.xlsx");
     toast.success("Detailed report compiled & downloaded!");
   };
 

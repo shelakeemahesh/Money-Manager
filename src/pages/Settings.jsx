@@ -224,7 +224,7 @@ const Settings = () => {
       XLSX.utils.book_append_sheet(wb, wsExp, "Outflow_Log");
     }
 
-    XLSX.writeFile(wb, "money_manager_complete_export.xlsx");
+    XLSX.writeFile(wb, "credowallet_complete_export.xlsx");
     toast.success("Financial raw data successfully exported to Excel!");
   };
 
