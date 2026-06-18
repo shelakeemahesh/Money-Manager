@@ -76,7 +76,7 @@ const AdminExpenseManagement = () => {
       return;
     }
     const exportData = data.map(t => ({
-      ID: t.id,
+      ID: t.formattedTxId || t.id,
       Type: t.type,
       Title: t.title || t.category,
       Category: t.category,
@@ -95,9 +95,9 @@ const AdminExpenseManagement = () => {
 
   const columns = useMemo(() => [
     {
-      accessorKey: 'id',
+      accessorKey: 'formattedTxId',
       header: 'Tx ID',
-      cell: (info) => <span className="font-mono text-[10px] text-[var(--text-muted)]">#{info.getValue()}</span>
+      cell: (info) => <span className="font-mono text-[10px] text-[var(--text-muted)]">{info.getValue() || info.row.original.id}</span>
     },
     {
       accessorKey: 'userEmail',
@@ -401,7 +401,7 @@ const AdminExpenseManagement = () => {
                   <div className="space-y-3.5">
                     <div className="flex justify-between items-center text-xs pb-3 border-b border-[var(--border)]">
                       <span className="text-[var(--text-muted)] flex items-center gap-1.5"><Hash size={13} /> Node ID</span>
-                      <span className="font-mono text-[var(--text-primary)] font-semibold">#{selectedTx.id}</span>
+                      <span className="font-mono text-[var(--text-primary)] font-semibold">{selectedTx.formattedTxId || selectedTx.id}</span>
                     </div>
                     
                     <div className="flex justify-between items-center text-xs pb-3 border-b border-[var(--border)]">
