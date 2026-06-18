@@ -290,7 +290,7 @@ const AdminSubscriptionManagement = () => {
             <CreditCard size={14} />
             <h3 className="text-[10px] font-bold uppercase tracking-widest">Monthly Recurring (MRR)</h3>
           </div>
-          <p className="text-2xl font-black text-emerald-500 drop-shadow-sm">₹{(dashboard?.mrr || 0).toLocaleString("en-IN")}</p>
+          <p className="text-2xl font-black text-emerald-500 drop-shadow-sm">₹{(dashboard?.mrr || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
         <div className="card p-4 flex flex-col justify-between">
           <div className="flex items-center gap-2 text-[var(--text-muted)] mb-2">
