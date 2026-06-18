@@ -600,8 +600,7 @@ const Settings = () => {
                     >
                       <option value="en">English (US)</option>
                       <option value="hi">हिन्दी (IN)</option>
-                      <option value="es">Español (ES)</option>
-                      <option value="fr">Français (FR)</option>
+                      <option value="mr">मराठी (IN)</option>
                     </select>
                   </div>
                 </div>
