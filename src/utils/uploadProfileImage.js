@@ -6,7 +6,7 @@ const uploadProfileImage = async (image) => {
     // 1. Fetch upload signature from backend
     const signatureData = await axiosConfig.get(API_ENDPOINTS.PROFILE_UPLOAD_SIGNATURE);
     
-    const { signature, timestamp, apiKey, cloudName, uploadPreset } = signatureData;
+    const { signature, timestamp, apiKey, cloudName, uploadPreset } = signatureData.data;
 
     // 2. Prepare FormData for signed upload
     const formData = new FormData();
