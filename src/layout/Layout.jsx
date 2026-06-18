@@ -45,6 +45,22 @@ const Layout = () => {
     const isDashboard = location.pathname === "/dashboard";
     const firstName = user?.fullName ? user.fullName.split(" ")[0] : "Admin";
 
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour >= 5 && hour < 12) return "Good morning";
+        if (hour >= 12 && hour < 17) return "Good afternoon";
+        if (hour >= 17 && hour < 22) return "Good evening";
+        return "Good night";
+    };
+
+    const getGreetingEmoji = () => {
+        const hour = new Date().getHours();
+        if (hour >= 5 && hour < 12) return "🌅";
+        if (hour >= 12 && hour < 17) return "☀️";
+        if (hour >= 17 && hour < 22) return "🌇";
+        return "🌙";
+    };
+
     return (
         <div className="flex h-screen overflow-hidden text-[var(--text-primary)] bg-[var(--surface-2)] transition-colors duration-200">
 
@@ -83,8 +99,8 @@ const Layout = () => {
                         </button>
                         {isDashboard ? (
                             <div>
-                                <h1 className="text-xs sm:text-base lg:text-lg font-black tracking-tight text-[var(--text-primary)] flex items-center gap-1">
-                                    Good morning, {firstName}! <span className="animate-pulse">👋</span>
+                                <h1 className="text-xs sm:text-base lg:text-lg font-black tracking-tight text-[var(--text-primary)] flex items-center gap-1.5">
+                                    {getGreeting()}, {firstName}! <span className="animate-pulse">{getGreetingEmoji()}</span>
                                 </h1>
                                 <p className="hidden sm:block text-[9px] text-[var(--text-muted)] mt-0.5">
                                     Here's what's happening with your finances today.
