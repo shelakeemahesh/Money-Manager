@@ -13,6 +13,7 @@ const Login = () => {
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [takingLong, setTakingLong] = useState(false);
   
   const { setUser, theme, toggleTheme } = useContext(AppContext);
   const navigate = useNavigate();
@@ -21,6 +22,11 @@ const Login = () => {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
+    setTakingLong(false);
+
+    const timer = setTimeout(() => {
+      setTakingLong(true);
+    }, 4000);
 
     try {
       const response = await login({ emailOrPhone, password });
@@ -38,7 +44,9 @@ const Login = () => {
     } catch (error) {
       toast.error(error?.response?.data?.message || "Login failed");
     } finally {
+      clearTimeout(timer);
       setLoading(false);
+      setTakingLong(false);
     }
   };
 
@@ -189,6 +197,12 @@ const Login = () => {
                   </>
                 )}
               </button>
+
+              {takingLong && (
+                <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-md text-[10.5px] text-amber-600 dark:text-amber-400 font-medium text-center animate-pulse mt-2">
+                  Note: Server is booting up (Render free tier cold start). This can take up to a minute. Please wait.
+                </div>
+              )}
             </form>
 
             <div className="mt-5 text-center">

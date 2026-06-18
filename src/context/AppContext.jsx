@@ -46,6 +46,11 @@ export const AppContextProvider = ({ children }) => {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
+  useEffect(() => {
+    // Proactively wake up backend to mitigate Render cold-start delay
+    axiosConfig.get("/health").catch(() => {});
+  }, []);
+
   const toggleTheme = () => setTheme((prev) => (prev === "light" ? "dark" : "light"));
 
   useEffect(() => {

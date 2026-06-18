@@ -13,6 +13,7 @@ const AdminLogin = () => {
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [takingLong, setTakingLong] = useState(false);
   const navigate = useNavigate();
 
   const { theme, toggleTheme } = useContext(AppContext);
@@ -21,6 +22,11 @@ const AdminLogin = () => {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
+    setTakingLong(false);
+
+    const timer = setTimeout(() => {
+      setTakingLong(true);
+    }, 4000);
 
     try {
       const response = await axiosConfig.post(API_ENDPOINTS.LOGIN, { emailOrPhone, password });
@@ -50,7 +56,9 @@ const AdminLogin = () => {
     } catch (error) {
       toast.error(error.response?.data?.message || "Invalid credentials");
     } finally {
+      clearTimeout(timer);
       setLoading(false);
+      setTakingLong(false);
     }
   };
 
@@ -132,6 +140,12 @@ const AdminLogin = () => {
                 </>
               )}
             </button>
+
+            {takingLong && (
+              <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-md text-[10.5px] text-amber-600 dark:text-amber-400 font-medium text-center animate-pulse mt-2">
+                Note: Server is booting up (Render free tier cold start). This can take up to a minute. Please wait.
+              </div>
+            )}
           </form>
         </div>
 

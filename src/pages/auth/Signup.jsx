@@ -18,6 +18,7 @@ const Signup = () => {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [takingLong, setTakingLong] = useState(false);
 
   const { theme, toggleTheme } = useContext(AppContext);
   const navigate = useNavigate();
@@ -43,6 +44,11 @@ const Signup = () => {
     }
 
     setLoading(true);
+    setTakingLong(false);
+
+    const timer = setTimeout(() => {
+      setTakingLong(true);
+    }, 4000);
 
     try {
       const fullPhoneNumber = `${countryCode}${phone}`;
@@ -62,7 +68,9 @@ const Signup = () => {
       setError(err.response?.data?.message || "Signup failed. Please try again.");
       toast.error(err.response?.data?.message || "Signup failed");
     } finally {
+      clearTimeout(timer);
       setLoading(false);
+      setTakingLong(false);
     }
   };
 
@@ -224,6 +232,12 @@ const Signup = () => {
               </>
             )}
           </button>
+
+          {takingLong && (
+            <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-md text-[10.5px] text-amber-600 dark:text-amber-400 font-medium text-center animate-pulse mt-2">
+              Note: Server is booting up (Render free tier cold start). This can take up to a minute. Please wait.
+            </div>
+          )}
         </form>
 
         <p className="mt-6 text-center text-xs text-[var(--text-secondary)]">
