@@ -1,5 +1,6 @@
 import axios from "axios";
 import { BASE_URL } from "./apiEndpoints";
+import { toast } from "sonner";
 
 const axiosConfig = axios.create({
   baseURL: BASE_URL,
@@ -43,6 +44,19 @@ const cleanupButton = (config) => {
 // request interceptor
 axiosConfig.interceptors.request.use(
   (config) => {
+    // Show cold start notice if API request takes > 2.5 seconds
+    const wakeUpTimer = setTimeout(() => {
+      if (!window.isWakingUpToastActive) {
+        window.isWakingUpToastActive = true;
+        toast.info("Connecting to backend server... (Waking up from sleep may take up to 45 seconds). Please wait.", {
+          duration: 7000,
+          onDismiss: () => { window.isWakingUpToastActive = false; },
+          onAutoClose: () => { window.isWakingUpToastActive = false; }
+        });
+      }
+    }, 2500);
+    config.wakeUpTimer = wakeUpTimer;
+
     // 1. Prevent concurrent identical non-GET API requests
     if (config.method && config.method !== "get") {
       let dataStr = "";
@@ -113,6 +127,9 @@ axiosConfig.interceptors.request.use(
 axiosConfig.interceptors.response.use(
   (response) => {
     if (response.config) {
+      if (response.config.wakeUpTimer) {
+        clearTimeout(response.config.wakeUpTimer);
+      }
       if (response.config.requestKey) {
         activeRequests.delete(response.config.requestKey);
       }
@@ -126,6 +143,9 @@ axiosConfig.interceptors.response.use(
   },
   (error) => {
     if (error.config) {
+      if (error.config.wakeUpTimer) {
+        clearTimeout(error.config.wakeUpTimer);
+      }
       if (error.config.requestKey) {
         activeRequests.delete(error.config.requestKey);
       }
