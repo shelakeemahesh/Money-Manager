@@ -197,6 +197,24 @@ const AdminBackup = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const handleDownloadBackup = async (id, fileName) => {
+    try {
+      const response = await axiosConfig.get(`/admin/backup/download/${id}`, {
+        responseType: "blob"
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      toast.success("Backup file download initiated.");
+    } catch (err) {
+      toast.error("Failed to download database backup file.");
+    }
+  };
+
   const handleOpenDeployModal = () => {
     setDeployPassword("");
     setShowDeployModal(true);
@@ -611,17 +629,26 @@ const AdminBackup = () => {
                                     <Download size={13} />
                                   </a>
                                 ) : (
-                                  <button
-                                    onClick={() => copyToClipboard(item.filePathOrUrl, item.id)}
-                                    className="btn-secondary p-1 rounded hover:text-indigo-500 transition-colors flex items-center justify-center cursor-pointer"
-                                    title="Copy local backup directory filepath"
-                                  >
-                                    {copiedId === item.id ? (
-                                      <Check size={13} className="text-emerald-500" />
-                                    ) : (
-                                      <Copy size={13} />
-                                    )}
-                                  </button>
+                                  <>
+                                    <button
+                                      onClick={() => handleDownloadBackup(item.id, item.fileName)}
+                                      className="btn-secondary p-1 rounded hover:text-indigo-500 transition-colors flex items-center justify-center cursor-pointer"
+                                      title="Download backup dump file"
+                                    >
+                                      <Download size={13} />
+                                    </button>
+                                    <button
+                                      onClick={() => copyToClipboard(item.filePathOrUrl, item.id)}
+                                      className="btn-secondary p-1 rounded hover:text-indigo-500 transition-colors flex items-center justify-center cursor-pointer"
+                                      title="Copy local backup directory filepath"
+                                    >
+                                      {copiedId === item.id ? (
+                                        <Check size={13} className="text-emerald-500" />
+                                      ) : (
+                                        <Copy size={13} />
+                                      )}
+                                    </button>
+                                  </>
                                 )}
 
                                 {/* Restore trigger point */}
