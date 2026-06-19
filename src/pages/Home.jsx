@@ -50,12 +50,6 @@ const Home = () => {
   useEffect(() => {
     const syncStatus = async () => {
       try {
-        const profileRes = await axiosConfig.get(API_ENDPOINTS.USER_PROFILE);
-        if (profileRes.data) {
-          setUser(profileRes.data);
-          localStorage.setItem("user", JSON.stringify(profileRes.data));
-        }
-
         const subRes = await axiosConfig.get(API_ENDPOINTS.MY_SUBSCRIPTION);
         if (subRes.data) {
           setSubStatus(subRes.data);
