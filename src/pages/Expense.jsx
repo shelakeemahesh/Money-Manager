@@ -9,6 +9,7 @@ import ConfirmDialog from "../components/common/ConfirmDialog";
 import * as XLSX from "xlsx";
 import { API_ENDPOINTS } from "../utils/apiEndpoints";
 import axiosConfig from "../utils/axiosConfig";
+import useSEO from "../utils/useSEO";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -22,6 +23,12 @@ const formatDate = (dateStr) => {
 };
 
 const Expense = () => {
+    useSEO({
+        title: "Expense Tracker",
+        description: "Log your daily expenses, manage payments, categorized expenditures, and analyze custom spend charts.",
+        keywords: "expense tracker, spendings logger, daily outflow, money tracker, personal expenses"
+    });
+
     const { expenseList, setExpenseList, categoryList, addAnomaly } = useContext(AppContext);
     const [showModal, setShowModal] = useState(false);
     const [confirmStep, setConfirmStep] = useState(false);

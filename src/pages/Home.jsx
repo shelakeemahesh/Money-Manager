@@ -35,6 +35,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import axiosConfig from "../utils/axiosConfig";
 import { API_ENDPOINTS } from "../utils/apiEndpoints";
+import useSEO from "../utils/useSEO";
 
 const formatCurrency = (amount) =>
   `₹${Number(amount || 0).toLocaleString("en-IN")}`;
@@ -42,6 +43,12 @@ const formatCurrency = (amount) =>
 const Home = () => {
   const { user, setUser, incomeList, expenseList, t } = useContext(AppContext);
   const navigate = useNavigate();
+
+  useSEO({
+    title: t ? t("dashboard") : "Dashboard",
+    description: "View your personal financial health dashboard: check total balances, trending income vs expenses, and category-wise visual breakdowns.",
+    keywords: "finance dashboard, wealth overview, balance tracker, dynamic analytics, credowallet"
+  });
 
   const [dateFilter, setDateFilter] = useState("This Week");
   const [subStatus, setSubStatus] = useState(null);

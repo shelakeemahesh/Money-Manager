@@ -9,6 +9,7 @@ import ConfirmDialog from "../components/common/ConfirmDialog";
 import * as XLSX from "xlsx";
 import { API_ENDPOINTS } from "../utils/apiEndpoints";
 import axiosConfig from "../utils/axiosConfig";
+import useSEO from "../utils/useSEO";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -22,6 +23,12 @@ const formatDate = (dateStr) => {
 };
 
 const Income = () => {
+    useSEO({
+        title: "Income Tracker",
+        description: "Log your income sources, freelance earnings, salaries, and investments. View detailed monthly summaries and charts.",
+        keywords: "income sources, salary tracker, freelance income, investment tracking, finance details"
+    });
+
     const { incomeList, setIncomeList, categoryList, addAnomaly } = useContext(AppContext);
     const [showModal, setShowModal] = useState(false);
     const [confirmStep, setConfirmStep] = useState(false);

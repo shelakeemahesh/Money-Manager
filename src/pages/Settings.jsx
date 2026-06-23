@@ -14,6 +14,7 @@ import Input from "../components/common/Input";
 import { toast } from "sonner";
 import axiosConfig from "../utils/axiosConfig";
 import * as XLSX from "xlsx";
+import useSEO from "../utils/useSEO";
 
 const Settings = () => {
   const { 
@@ -23,6 +24,12 @@ const Settings = () => {
   } = useContext(AppContext);
 
   const navigate = useNavigate();
+
+  useSEO({
+    title: t ? t("settings") : "Settings",
+    description: "Manage your user profile details, application security, preferences, system options, and data backups.",
+    keywords: "settings, profile settings, change credentials, security settings, preferences"
+  });
 
   const handleLogout = () => {
     localStorage.removeItem("user");

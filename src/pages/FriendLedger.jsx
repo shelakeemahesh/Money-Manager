@@ -32,10 +32,17 @@ import {
   getFriendDetailSummary
 } from "../services/friendTransactionService";
 import Input from "../components/common/Input";
+import useSEO from "../utils/useSEO";
 
 const FriendLedger = () => {
   const { theme, t, user } = useContext(AppContext);
   const navigate = useNavigate();
+
+  useSEO({
+    title: "Friend Ledger",
+    description: "Manage lent and borrowed balances, keep track of debts, record settlements, and audit transaction histories with friends.",
+    keywords: "friend ledger, splitwise, debt tracker, lend money, borrow money, peer to peer tracking"
+  });
 
   // Lists & Summaries
   const [overallSummary, setOverallSummary] = useState({

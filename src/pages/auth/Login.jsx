@@ -6,10 +6,17 @@ import { toast } from "sonner";
 import { login, googleLogin } from "../../services/authService";
 import Input from "../../components/common/Input";
 import { GoogleLogin } from '@react-oauth/google';
+import useSEO from "../../utils/useSEO";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 
 const Login = () => {
+  useSEO({
+    title: "Sign In",
+    description: "Access your CredoWallet wealth manager. Log in with your email or phone number or use Google OAuth for instant secure sign-in.",
+    keywords: "login, secure login, auth, credential check, access account"
+  });
+
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
