@@ -2,7 +2,7 @@
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
     "namespace": "android_app",
-    "package_name": "com.credowallet.twa",
+    "package_name": "app.vercel.money_manager_one_chi.twa",
     "sha256_cert_fingerprints": ["REPLACE_WITH_ACTUAL_FINGERPRINT_FROM_PWABUILDER"]
   }
 }]
