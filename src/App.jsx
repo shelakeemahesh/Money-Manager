@@ -43,10 +43,16 @@ import AdminBackup from "./pages/admin/AdminBackup";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import ErrorBoundary from "./components/common/ErrorBoundary";
 
+// PWA components
+import InstallPrompt from "./components/pwa/InstallPrompt";
+import PWAUpdateNotifier from "./components/pwa/PWAUpdateNotifier";
+
 const App = () => {
   return (
     <>
       <Toaster richColors position="top-center" />
+      <InstallPrompt />
+      <PWAUpdateNotifier />
 
       <BrowserRouter>
         <Routes>
